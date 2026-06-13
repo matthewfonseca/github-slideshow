@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#080818">
+<title>English Master — Clarity &amp; Conjugation</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#080818;--surface:#12122a;--surface2:#1e1e40;
+  --accent:#7c6fff;--accent2:#b06fff;
+  --success:#22c55e;--danger:#f43f5e;--warn:#fb923c;
+  --text:#f0f0ff;--muted:#7878aa;--r:18px
+}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:var(--bg);color:var(--text);-webkit-font-smoothing:antialiased}
+body{display:flex;flex-direction:column}
+
+/* SCREENS */
+.screen{position:absolute;inset:0;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:none;transition:opacity .22s ease,transform .22s ease}
+.screen.hidden{opacity:0;pointer-events:none;transform:translateX(30px)}
+
+/* HOME */
+#home{padding:28px 20px max(20px,env(safe-area-inset-bottom));justify-content:center;align-items:center;gap:0;background:radial-gradient(ellipse at top,#1a0533 0%,var(--bg) 68%)}
+.logo-area{text-align:center;margin-bottom:28px}
+.logo-icon{font-size:54px;line-height:1;margin-bottom:6px;filter:drop-shadow(0 0 22px #7c6fff99)}
+.logo-title{font-size:30px;font-weight:800;letter-spacing:-.5px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.logo-sub{font-size:12px;color:var(--muted);margin-top:4px;letter-spacing:2.5px;text-transform:uppercase}
+.hs-badge{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid #fff2;border-radius:999px;padding:6px 16px;font-size:13px;color:var(--muted);margin-bottom:28px}
+.hs-badge span{color:var(--warn);font-weight:700}
+.mode-cards{display:flex;flex-direction:column;gap:11px;width:100%;max-width:390px}
+.mode-card{background:var(--surface);border:1.5px solid #fff1;border-radius:var(--r);padding:17px 18px;cursor:pointer;transition:transform .13s,background .13s;display:flex;align-items:center;gap:14px;position:relative;overflow:hidden}
+.mode-card:active{transform:scale(.97);background:var(--surface2)}
+.mode-card.featured{border-color:var(--accent);background:linear-gradient(135deg,#1a1040,var(--surface))}
+.mode-icon{font-size:30px;flex-shrink:0}
+.mode-info{flex:1}
+.mode-name{font-size:17px;font-weight:700}
+.mode-card.featured .mode-name{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.mode-desc{font-size:12px;color:var(--muted);margin-top:2px}
+.mode-arrow{color:var(--muted);font-size:20px}
+
+/* GAME */
+#game{padding:0;overflow:hidden}
+.game-hdr{padding:12px 14px 10px;display:flex;align-items:center;gap:10px;background:var(--surface);border-bottom:1px solid #fff1;flex-shrink:0}
+.back-btn{width:34px;height:34px;display:flex;align-items:center;justify-content:center;border-radius:9px;background:var(--surface2);border:none;color:var(--text);font-size:20px;cursor:pointer;flex-shrink:0;line-height:1}
+.prog-wrap{flex:1;height:5px;background:var(--surface2);border-radius:999px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:999px;transition:width .4s ease}
+.score-num{font-size:17px;font-weight:700;min-width:44px;text-align:right;flex-shrink:0}
+.streak-badge{display:flex;align-items:center;gap:2px;background:var(--surface2);border-radius:999px;padding:3px 9px;font-size:13px;font-weight:600;color:var(--warn);flex-shrink:0}
+.timer-wrap{height:4px;background:var(--surface2);flex-shrink:0}
+.timer-fill{height:100%;background:linear-gradient(90deg,var(--success),var(--warn));transition:width 1s linear,background 1s linear}
+.timer-fill.danger{background:var(--danger)}
+.q-scroll{flex:1;overflow-y:auto;padding:18px 15px;display:flex;flex-direction:column;gap:13px}
+.cat-row{display:flex;align-items:center;justify-content:space-between}
+.cat-tag{display:inline-flex;align-items:center;background:var(--surface2);border-radius:8px;padding:4px 10px;font-size:11px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;color:var(--accent2)}
+.q-num{font-size:12px;color:var(--muted)}
+.q-card{background:var(--surface);border:1px solid #fff1;border-radius:var(--r);padding:19px 17px}
+.q-text{font-size:16px;line-height:1.58;color:var(--text)}
+.q-text .blank{display:inline-block;min-width:80px;border-bottom:2px solid var(--accent);color:var(--accent);font-weight:700;padding:0 3px;vertical-align:bottom}
+.opts{display:flex;flex-direction:column;gap:9px}
+.opt{width:100%;background:var(--surface);border:1.5px solid #fff1;border-radius:13px;padding:13px 15px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:transform .12s,background .12s,border-color .12s;text-align:left;color:var(--text);animation:fade-slide .2s ease backwards}
+.opt:nth-child(1){animation-delay:.04s}
+.opt:nth-child(2){animation-delay:.1s}
+.opt:nth-child(3){animation-delay:.16s}
+.opt:nth-child(4){animation-delay:.22s}
+.opt:active{transform:scale(.98)}
+.opt.correct{background:#16402a;border-color:var(--success);animation:pulse-green .45s ease}
+.opt.wrong{background:#401628;border-color:var(--danger);animation:shake .38s ease}
+.opt.reveal{background:#16402a;border-color:var(--success);opacity:.8}
+.opt.dim{opacity:.38;cursor:default}
+.opt-letter{width:29px;height:29px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:var(--muted);flex-shrink:0;transition:background .12s,color .12s}
+.opt.correct .opt-letter,.opt.reveal .opt-letter{background:var(--success);color:#fff}
+.opt.wrong .opt-letter{background:var(--danger);color:#fff}
+.opt-text{font-size:15px;line-height:1.4;flex:1}
+.fb-panel{background:var(--surface);border-top:1px solid #fff1;padding:15px 15px max(15px,env(safe-area-inset-bottom));flex-shrink:0;animation:slide-up .28s ease}
+.fb-panel.hidden{display:none}
+.fb-hdr{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.fb-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.fb-icon.ok{background:#16402a}
+.fb-icon.no{background:#401628}
+.fb-title{font-size:16px;font-weight:700}
+.fb-title.ok{color:var(--success)}
+.fb-title.no{color:var(--danger)}
+.fb-exp{font-size:13px;color:var(--muted);line-height:1.56;margin-bottom:13px}
+.next-btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:13px;padding:15px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;transition:opacity .14s,transform .14s}
+.next-btn:active{opacity:.85;transform:scale(.98)}
+
+/* RESULTS */
+#results{padding:26px 20px max(26px,env(safe-area-inset-bottom));align-items:center;gap:18px;background:radial-gradient(ellipse at top,#1a0533 0%,var(--bg) 68%)}
+.res-title{font-size:26px;font-weight:800;text-align:center}
+.score-ring{width:136px;height:136px;border-radius:50%;background:var(--surface);border:3px solid var(--surface2);display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-pct{font-size:38px;font-weight:800;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.score-pts{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.stars{display:flex;gap:5px;font-size:26px}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;width:100%;max-width:390px}
+.stat-card{background:var(--surface);border:1px solid #fff1;border-radius:var(--r);padding:13px;text-align:center}
+.stat-val{font-size:23px;font-weight:800;color:var(--accent)}
+.stat-key{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-top:2px}
+.breakdown{width:100%;max-width:390px;background:var(--surface);border:1px solid #fff1;border-radius:var(--r);overflow:hidden}
+.bd-title{font-size:11px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--muted);padding:11px 15px;border-bottom:1px solid #fff1}
+.bd-row{display:flex;align-items:center;gap:9px;padding:9px 15px;border-bottom:1px solid #fff0}
+.bd-row:not(:last-child){border-bottom-color:#0002}
+.bd-name{font-size:13px;flex:1;color:var(--text)}
+.bd-bar-bg{width:72px;height:5px;background:var(--surface2);border-radius:999px;overflow:hidden}
+.bd-bar{height:100%;border-radius:999px;transition:width .8s ease .2s}
+.bd-sc{font-size:12px;font-weight:700;color:var(--muted);min-width:30px;text-align:right}
+.res-btns{display:flex;flex-direction:column;gap:9px;width:100%;max-width:390px}
+.btn-p{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:13px;padding:15px;font-size:16px;font-weight:700;color:#fff;cursor:pointer;transition:opacity .14s,transform .14s}
+.btn-p:active{opacity:.85;transform:scale(.98)}
+.btn-s{width:100%;background:var(--surface);border:1.5px solid #fff2;border-radius:13px;padding:14px;font-size:15px;font-weight:600;color:var(--text);cursor:pointer;transition:background .14s,transform .14s}
+.btn-s:active{background:var(--surface2);transform:scale(.98)}
+
+/* ANIMATIONS */
+@keyframes fade-slide{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse-green{0%{box-shadow:0 0 0 0 #22c55e55}60%{box-shadow:0 0 0 14px #22c55e00}100%{box-shadow:0 0 0 0 #22c55e00}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes slide-up{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- ── HOME ── -->
+<div class="screen" id="home">
+  <div class="logo-area">
+    <div class="logo-icon">⚡</div>
+    <div class="logo-title">English Master</div>
+    <div class="logo-sub">Clarity &amp; Conjugation</div>
+  </div>
+  <div class="hs-badge">🏆 Best: <span id="hs-val">0</span> pts</div>
+  <div class="mode-cards">
+    <div class="mode-card featured" onclick="startGame('quickfire')">
+      <div class="mode-icon">🔥</div>
+      <div class="mode-info">
+        <div class="mode-name">Quick Fire</div>
+        <div class="mode-desc">10 questions · 15 sec each · beat the clock</div>
+      </div>
+      <div class="mode-arrow">›</div>
+    </div>
+    <div class="mode-card" onclick="startGame('marathon')">
+      <div class="mode-icon">🏆</div>
+      <div class="mode-info">
+        <div class="mode-name">Marathon</div>
+        <div class="mode-desc">25 questions · no timer · full depth</div>
+      </div>
+      <div class="mode-arrow">›</div>
+    </div>
+    <div class="mode-card" onclick="startGame('suddendeath')">
+      <div class="mode-icon">💀</div>
+      <div class="mode-info">
+        <div class="mode-name">Sudden Death</div>
+        <div class="mode-desc">unlimited questions · one miss ends it all</div>
+      </div>
+      <div class="mode-arrow">›</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── GAME ── -->
+<div class="screen hidden" id="game">
+  <div class="game-hdr">
+    <button class="back-btn" onclick="confirmQuit()">‹</button>
+    <div class="prog-wrap"><div class="prog-fill" id="prog-fill"></div></div>
+    <div class="score-num" id="score-num">0</div>
+    <div class="streak-badge" id="streak-badge">🔥 0</div>
+  </div>
+  <div class="timer-wrap" id="timer-wrap" style="display:none">
+    <div class="timer-fill" id="timer-fill" style="width:100%"></div>
+  </div>
+  <div class="q-scroll" id="q-scroll">
+    <div class="cat-row">
+      <div class="cat-tag" id="q-cat">—</div>
+      <div class="q-num" id="q-num">Q1</div>
+    </div>
+    <div class="q-card"><div class="q-text" id="q-text">Loading…</div></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="fb-panel hidden" id="fb-panel">
+    <div class="fb-hdr">
+      <div class="fb-icon" id="fb-icon"></div>
+      <div class="fb-title" id="fb-title"></div>
+    </div>
+    <div class="fb-exp" id="fb-exp"></div>
+    <button class="next-btn" id="next-btn">Next →</button>
+  </div>
+</div>
+
+<!-- ── RESULTS ── -->
+<div class="screen hidden" id="results">
+  <div class="res-title" id="res-title">Round Complete!</div>
+  <div class="score-ring">
+    <div class="score-pct" id="res-pct">—%</div>
+    <div class="score-pts" id="res-pts">0 pts</div>
+  </div>
+  <div class="stars" id="stars"></div>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-val" id="s-correct">0</div><div class="stat-key">Correct</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-streak">0</div><div class="stat-key">Best Streak</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-score">0</div><div class="stat-key">Score</div></div>
+    <div class="stat-card"><div class="stat-val" id="s-time">—</div><div class="stat-key">Avg Time</div></div>
+  </div>
+  <div class="breakdown" id="breakdown"></div>
+  <div class="res-btns">
+    <button class="btn-p" id="play-again-btn">Play Again</button>
+    <button class="btn-s" onclick="goHome()">Back to Menu</button>
+  </div>
+</div>
+
+<script>
+// ── QUESTION BANK ──────────────────────────────────────────────────────────
+const QB = [
+
+// SUBJUNCTIVE
+{c:"Subjunctive",
+ q:"The board requires that every delegate ___ present for the final vote.",
+ o:["is","be","was","were"], a:1,
+ e:"After mandative verbs ('require', 'insist', 'demand', 'recommend'), English uses the present subjunctive — the bare infinitive regardless of person. 'Is' is indicative mood and is incorrect in formal usage."},
+
+{c:"Subjunctive",
+ q:"It is paramount that the committee ___ any conflict of interest before proceedings begin.",
+ o:["discloses","disclose","will disclose","disclosed"], a:1,
+ e:"'It is paramount/essential/crucial that' triggers the mandative subjunctive: the base form 'disclose', not the third-person -s form. This pattern is standard in formal and legal English."},
+
+{c:"Subjunctive",
+ q:"If I ___ in your position, I would decline the offer without hesitation.",
+ o:["am","was","be","were"], a:3,
+ e:"'Were' is the past subjunctive used in counterfactual if-clauses. 'If I were you' remains the standard form in formal writing. 'Was' is increasingly heard informally but is not accepted in careful written usage."},
+
+{c:"Subjunctive",
+ q:"The statute stipulates that anyone convicted of a first offence ___ a suspended sentence.",
+ o:["is given","be given","was given","will be given"], a:1,
+ e:"The mandative subjunctive in passive voice takes 'be + past participle': 'be given'. 'Is given' (present indicative) is wrong in this formal legal register."},
+
+{c:"Subjunctive",
+ q:"She would rather her assistant ___ the draft independently before their next meeting.",
+ o:["prepares","prepare","prepared","had prepared"], a:2,
+ e:"'Would rather + object + verb' takes a past subjunctive: 'would rather he prepared' (not base form). This expresses a preference about another person's present or future action."},
+
+{c:"Subjunctive",
+ q:"The motion proposed that the hearing ___ until new evidence could be reviewed.",
+ o:["is adjourned","was adjourned","be adjourned","will be adjourned"], a:2,
+ e:"'Proposed that' triggers the passive subjunctive: 'be adjourned'. Both active and passive subjunctives use the base form of 'be'."},
+
+// CONDITIONALS
+{c:"Conditionals",
+ q:"If the company ___ the merger earlier, they ___ in a far stronger position today.",
+ o:["completed / would be","had completed / would be","completed / would have been","has completed / would be"], a:1,
+ e:"A mixed conditional: past unrealised condition (if + past perfect) with a present result (would + base verb). Had they completed it = they didn't; would be = present consequence."},
+
+{c:"Conditionals",
+ q:"___ the documents been filed on time, the lawsuit would never have reached court.",
+ o:["Should","Were","Had","Would"], a:2,
+ e:"'Had the documents been filed' is a formal inverted type-3 conditional — the auxiliary 'had' is fronted, replacing 'if'. This structure appears frequently in legal and formal written English."},
+
+{c:"Conditionals",
+ q:"___ she to resign, the entire project would be thrown into immediate jeopardy.",
+ o:["Should","Were","Had","Could"], a:1,
+ e:"'Were she to resign' is an inverted type-2 conditional equivalent to 'If she were to resign'. The structure is 'Were + subject + to + infinitive'. It conveys a hypothetical present/future scenario."},
+
+{c:"Conditionals",
+ q:"___ you need further clarification, please do not hesitate to contact our office.",
+ o:["Should","Were","Had","Would"], a:0,
+ e:"'Should you need' is an inverted conditional using 'should' to mean 'in the event that'. It replaces 'If you should need' and is common in formal correspondence."},
+
+{c:"Conditionals",
+ q:"They would never have signed the contract if they ___ the full implications.",
+ o:["understood","would understand","had understood","have understood"], a:2,
+ e:"Type-3 conditional: the if-clause requires past perfect ('had understood') for a hypothetical past action. 'Would understand' cannot appear in the if-clause — it belongs in the main clause."},
+
+{c:"Conditionals",
+ q:"Even if the evidence ___ otherwise, the methodology would still be fundamentally flawed.",
+ o:["suggests","suggested","had suggested","would suggest"], a:1,
+ e:"'Even if' with a counterfactual uses the past subjunctive ('suggested') — a type-2 conditional. The speaker implies the evidence does NOT suggest otherwise."},
+
+// PERFECT TENSES
+{c:"Perfect Tenses",
+ q:"By the time the audit concluded, the CFO ___ the figures on three separate occasions.",
+ o:["reviewed","has reviewed","had reviewed","was reviewing"], a:2,
+ e:"Past perfect ('had reviewed') is required for an action completed BEFORE another past action ('the audit concluded'). Present perfect 'has reviewed' does not fit a past narrative."},
+
+{c:"Perfect Tenses",
+ q:"She seems ___ the entire situation — she hasn't responded to a single message.",
+ o:["to misunderstand","misunderstanding","to have misunderstood","to be misunderstanding"], a:2,
+ e:"'Seems to have misunderstood' uses the perfect infinitive to show the misunderstanding occurred BEFORE the present moment. 'Seems to misunderstand' would imply simultaneity with the seeming."},
+
+{c:"Perfect Tenses",
+ q:"By next spring, the research team ___ on this project for a full decade.",
+ o:["will work","will be working","will have been working","have worked"], a:2,
+ e:"Future perfect continuous ('will have been working') emphasises the ongoing duration of an activity up to a specific future point. 'Will have worked' (simple) is also possible but less emphatic about the continuous nature."},
+
+{c:"Perfect Tenses",
+ q:"She ___ for the company for six years before she finally received her first promotion.",
+ o:["was working","has worked","worked","had been working"], a:3,
+ e:"Past perfect continuous ('had been working') stresses the ongoing duration of an action leading up to a past event. It emphasises how long she waited before the promotion."},
+
+{c:"Perfect Tenses",
+ q:"He is reported ___ the country before the arrest warrant was issued.",
+ o:["to flee","to have fled","fleeing","to be fleeing"], a:1,
+ e:"With passive reporting verbs ('is reported/believed/said'), a perfect infinitive ('to have fled') places the reported event in the past — earlier than the reporting moment. This is common in formal and journalistic registers."},
+
+{c:"Perfect Tenses",
+ q:"The director acknowledged that she ___ about the structural risks for months.",
+ o:["warned","has been warned","had been warned","was warned"], a:2,
+ e:"Backshift in reported speech: since 'acknowledged' is past, the earlier event shifts to past perfect: 'had been warned'. 'Was warned' is simple past and doesn't capture the sequence clearly."},
+
+// MODAL VERBS
+{c:"Modal Verbs",
+ q:"You ___ told me about the change — I had no idea it was happening.",
+ o:["should","should have","must have","ought to"], a:1,
+ e:"'Should have told' (modal perfect) expresses a past obligation that was NOT fulfilled — a criticism. 'Should' alone refers to present/future obligations and cannot refer to past missed duties."},
+
+{c:"Modal Verbs",
+ q:"She ___ been working all night; her desk is covered in notes and empty coffee cups.",
+ o:["must have","should have","could have","would have"], a:0,
+ e:"'Must have been working' expresses strong logical deduction about a past continuous action based on present evidence. 'Could have been' would only suggest possibility, not near-certainty."},
+
+{c:"Modal Verbs",
+ q:"You ___ have brought an umbrella — the forecast was clear all day.",
+ o:["mustn't","needn't","shouldn't","couldn't"], a:1,
+ e:"'Needn't have brought' means the action WAS done but was unnecessary. 'Shouldn't have' implies the action was wrong or inadvisable, not merely needless. 'Mustn't have' is not used for past logical deduction."},
+
+{c:"Modal Verbs",
+ q:"The witness ___ have seen the suspect — she was in another country at the time.",
+ o:["mustn't","couldn't","shouldn't","needn't"], a:1,
+ e:"'Couldn't have seen' expresses logical impossibility about the past. An alibi makes witnessing impossible. 'Mustn't have' is not standard for deduction — use 'can't have' or 'couldn't have'."},
+
+{c:"Modal Verbs",
+ q:"They ___ cancelled the event without informing ticket-holders in advance.",
+ o:["couldn't have","needn't have","shouldn't have","mightn't have"], a:2,
+ e:"'Shouldn't have cancelled' expresses that the action was wrong or inappropriate — they did it, but it was inadvisable. 'Couldn't have' = impossible; 'needn't have' = unnecessary (but not morally wrong)."},
+
+// PASSIVE & REPORTING
+{c:"Passive & Reporting",
+ q:"Three executives ___ in connection with the fraud before the investigation was quietly shelved.",
+ o:["were arrested","have been arrested","had been arrested","are arrested"], a:2,
+ e:"Past perfect passive ('had been arrested') is correct: the arrests preceded the investigation being shelved — two sequential past events. The earlier one takes the past perfect."},
+
+{c:"Passive & Reporting",
+ q:"The contract ___ to have been signed under duress, according to the plaintiff's legal team.",
+ o:["is claimed","is shown","is described","is noted"], a:0,
+ e:"'Is claimed to have been signed' uses the passive reporting structure (is + reporting verb + perfect infinitive). This construction is standard in legal and journalistic writing to attribute a claim without endorsing it."},
+
+{c:"Passive & Reporting",
+ q:"It is widely believed that the artefact ___ the collection by at least two centuries.",
+ o:["predates","has predated","had predated","predated"], a:2,
+ e:"The past perfect ('had predated') correctly situates the artefact's age relative to an earlier established point. Since the sentence concerns a historical claim about relative chronology, the past perfect is the precise choice."},
+
+// REPORTED SPEECH
+{c:"Reported Speech",
+ q:"She told the panel: 'I will resign if the proposal is approved.' → She told the panel that she ___ if the proposal ___.",
+ o:["will resign / is approved","would resign / was approved","would resign / had been approved","resigned / is approved"], a:1,
+ e:"Backshift: 'will' → 'would'; present simple 'is' → past simple 'was'. Both verbs shift back one tense when the reporting verb is past ('told')."},
+
+{c:"Reported Speech",
+ q:"He said: 'I have been trying to reach you for hours.' → He said that he ___ to reach me for hours.",
+ o:["has been trying","had been trying","was trying","tried"], a:1,
+ e:"Present perfect continuous → past perfect continuous in reported speech: 'have been trying' → 'had been trying'. Backshift moves each tense one step further back."},
+
+{c:"Reported Speech",
+ q:"'You must submit your report by Friday,' she told him. → She told him that he ___ his report by Friday.",
+ o:["must submit","had to submit","should have submitted","ought to submit"], a:1,
+ e:"'Must' (obligation) typically backshifts to 'had to' in reported speech. 'Should have submitted' would imply a past missed deadline, changing the meaning."},
+
+// WISH & REGRET
+{c:"Wish & Regret",
+ q:"I wish I ___ the truth when I had the chance — it's too late to fix anything now.",
+ o:["tell","told","had told","would tell"], a:2,
+ e:"'Wish' + past perfect ('had told') expresses regret about an irreversible past action. 'Wish' + past simple ('told') expresses a wish for a present situation to be different."},
+
+{c:"Wish & Regret",
+ q:"She wishes she ___ fluent in Mandarin so she could negotiate directly.",
+ o:["is","was / were","had been","will be"], a:1,
+ e:"'Wish' + past simple/subjunctive ('was' / 'were') expresses a desire for a present situation to be different. 'Were' is more formal. 'Had been' would express regret about the past."},
+
+{c:"Wish & Regret",
+ q:"If only they ___ more thoroughly before the launch — the recall was catastrophic.",
+ o:["test","tested","had tested","would have tested"], a:2,
+ e:"'If only' + past perfect expresses a regret about a past event that cannot be reversed. The reference to the recall confirms it is a completed, past scenario."},
+
+{c:"Wish & Regret",
+ q:"I wish you ___ interrupt me every time I try to make a point in these meetings.",
+ o:["don't","didn't","wouldn't","hadn't"], a:2,
+ e:"'Wish + subject + would' expresses irritation at a habitual behaviour and a desire for it to change. 'Wouldn't' is the correct form — this construction cannot be replaced by a simple past subjunctive here."},
+
+// COMPLEX STRUCTURES
+{c:"Complex Structures",
+ q:"No sooner ___ the announcement been made ___ the share price began to fall.",
+ o:["had / than","did / than","had / when","was / than"], a:0,
+ e:"'No sooner… than' requires past perfect + inversion in the first clause: 'No sooner had X happened than Y happened.' 'Scarcely/Hardly' use 'when'; only 'no sooner' uses 'than'."},
+
+{c:"Complex Structures",
+ q:"Not until the final hour ___.",
+ o:["the negotiations reached a breakthrough","did the negotiations reach a breakthrough","had the negotiations reached a breakthrough","the negotiations were reaching a breakthrough"], a:1,
+ e:"Fronting 'not until' requires subject-auxiliary inversion: 'Not until the final hour did the negotiations reach…'. 'Did + base verb' forms the inverted simple past. No inversion (options A, D) is ungrammatical here."},
+
+{c:"Complex Structures",
+ q:"Scarcely ___ she arrived at the office ___ her phone rang with the news.",
+ o:["had / when","did / when","had / than","was / before"], a:0,
+ e:"'Scarcely had… when' uses past perfect + inversion. 'Scarcely… when' (or 'hardly… when') — NOT 'than'. 'Than' is used only with 'no sooner'."},
+
+{c:"Complex Structures",
+ q:"Seldom ___ a proposal of such sweeping consequence come before this assembly.",
+ o:["does","has","had","is"], a:1,
+ e:"The negative adverb 'seldom' triggers subject-auxiliary inversion. Present perfect ('has… come') is used for a general observation about events up to now. 'Does come' is possible for habitual present but less idiomatic in elevated prose."},
+
+{c:"Complex Structures",
+ q:"It was not until she read the fine print ___ she realised the full implications of the clause.",
+ o:["when","that","which","what"], a:1,
+ e:"This is a cleft sentence: 'It was not until… that…'. The word 'that' completes the emphatic cleft structure. 'When' would simply form a time clause and destroy the cleft emphasis."},
+
+{c:"Complex Structures",
+ q:"The company pressed ahead with the launch, ___ widespread consumer opposition.",
+ o:["despite of","notwithstanding","regardless","in spite"], a:1,
+ e:"'Notwithstanding' is a preposition that takes no 'of' — grammatically complete on its own. 'Despite of' is ungrammatical (despite takes no preposition); 'regardless' needs 'of'; 'in spite' needs 'of'."},
+
+// GERUNDS & INFINITIVES
+{c:"Gerunds & Infinitives",
+ q:"We regret ___ you that your application has not been successful on this occasion.",
+ o:["telling","to tell","having told","told"], a:1,
+ e:"'Regret + to + infinitive' delivers disappointing news in the present: 'I regret to tell you = I'm sorry to have to say this now.' 'Regret + gerund' refers to a past action regretted: 'I regret telling him.'"},
+
+{c:"Gerunds & Infinitives",
+ q:"She stopped ___ the report when she realised she had opened the wrong file.",
+ o:["to read","reading","read","having read"], a:1,
+ e:"'Stop + gerund' means to cease an activity ('she was reading and stopped'). 'Stop + infinitive' means to pause in order to do something: 'She stopped to read' = she paused for the purpose of reading."},
+
+{c:"Gerunds & Infinitives",
+ q:"I remember ___ this clause in the original version — it appears to have been removed.",
+ o:["to see","seeing","to have seen","being seen"], a:1,
+ e:"'Remember + gerund' refers to a memory of a past event ('I remember seeing = I recall having seen it'). 'Remember + infinitive' means to remember to do something as a duty or task."},
+
+{c:"Gerunds & Infinitives",
+ q:"They proposed ___ the project by engaging a specialist consultant from abroad.",
+ o:["to save","saving","having saved","save"], a:1,
+ e:"'Propose + gerund' means to suggest a course of action. 'Propose + to-infinitive' means to intend to do it oneself: 'I propose to attend' (I intend to). Since this is a collective suggestion, the gerund applies."},
+
+// TENSE IN CLAUSES
+{c:"Tense in Clauses",
+ q:"As soon as the committee ___ a final decision, the chairman will issue a formal statement.",
+ o:["makes","will make","made","has made"], a:3,
+ e:"In future time clauses ('as soon as', 'once', 'when', 'before'), the present perfect ('has made') emphasises the completion of the action before the main clause event occurs. Simple present is also possible but less precise."},
+
+{c:"Tense in Clauses",
+ q:"He denied ever ___ access to the confidential personnel files.",
+ o:["to have","having","to have had","having had"], a:3,
+ e:"'Deny + gerund' is the standard structure. The perfect gerund 'having had' is needed because the denial concerns a past state ('having had access'). 'Having' alone ('having access') is weaker and less idiomatic here."},
+
+{c:"Tense in Clauses",
+ q:"The policy requires that employees ___ any potential conflict of interest upon appointment.",
+ o:["declare","declares","will declare","have declared"], a:0,
+ e:"'Requires that' triggers the mandative subjunctive: the base form 'declare' regardless of subject. 'Declares' (third-person -s) is indicative and incorrect in this formal policy context."},
+
+// CLARITY & STYLE
+{c:"Clarity & Style",
+ q:"Which sentence uses a participial modifier correctly?",
+ o:["Walking to the station, the rain began to fall.",
+    "Having finished the report, the meeting was cancelled.",
+    "Walking to the station, she noticed the rain beginning to fall.",
+    "To write clearly, practice is the only solution."], a:2,
+ e:"Options A, B, and D are dangling modifiers — the implied subject of the participial phrase ('walking', 'having finished', 'to write') does not match the grammatical subject of the main clause. Only C correctly makes 'she' the subject of both clauses."},
+
+{c:"Clarity & Style",
+ q:"Choose the version where 'almost' is correctly placed.",
+ o:["He almost drove two hundred miles to see her.",
+    "He drove almost two hundred miles to see her.",
+    "He drove two hundred miles almost to see her.",
+    "Almost, he drove two hundred miles to see her."], a:1,
+ e:"In B, 'almost' correctly modifies 'two hundred miles' (the distance was nearly 200 miles). In A, 'almost' modifies 'drove' (implying he nearly drove but didn't). In C, 'almost to see her' implies he nearly — but didn't quite — see her."},
+
+{c:"Clarity & Style",
+ q:"Which sentence is clearest and most concise?",
+ o:["Due to the fact that funding was insufficient, the project had to be cancelled.",
+    "The project was cancelled due to insufficient funding.",
+    "The project, on account of there being insufficient funding, was required to be cancelled.",
+    "It being the case that funding was insufficient, cancellation of the project was necessitated."], a:1,
+ e:"Option B is active, concise, and direct. 'Due to the fact that' (A) is a wordy substitute for 'because' or 'due to'. Options C and D use cumbersome constructions that bury the key information."},
+
+{c:"Clarity & Style",
+ q:"Which sentence contains an ambiguous pronoun reference?",
+ o:["The CEO briefed the board on the merger, which proved contentious.",
+    "After the director spoke with the producer, she revised the script entirely.",
+    "The attorney filed the motion before the deadline, ensuring its acceptance.",
+    "The panel reviewed the submission and found it compelling."], a:1,
+ e:"In B, 'she' is ambiguous — it could be the director or the producer. Fix: 'After speaking with the producer, the director revised the script.' In A, 'which' refers clearly to the merger; in C, 'its' refers clearly to the motion."},
+
+{c:"Clarity & Style",
+ q:"Which sentence demonstrates correct parallel structure?",
+ o:["The report must be concise, accurate, and it should be submitted on time.",
+    "Her duties include managing the budget, to oversee logistics, and training staff.",
+    "The proposal was rejected for its length, its vagueness, and its lack of evidence.",
+    "He was praised for efficiency, his ability to meet deadlines, and being calm."], a:2,
+ e:"Option C uses consistent noun phrases throughout: 'its length, its vagueness, its lack of evidence'. A mixes adjectives with a clause. B mixes gerunds and an infinitive. D mixes bare nouns, a noun phrase, and a gerund phrase."},
+
+{c:"Clarity & Style",
+ q:"Which sentence is free from redundancy?",
+ o:["The two parties must collaborate together on the joint initiative.",
+    "Please revert back to the original version of the document.",
+    "The investigation confirmed what had always been a known fact.",
+    "The merger was finalised after six months of extensive negotiation."], a:3,
+ e:"A: 'collaborate together' is redundant (collaborate means work together). B: 'revert back' is redundant (revert means return). C: 'known fact' is redundant (a fact is by definition known). D contains no redundancy."},
+
+{c:"Clarity & Style",
+ q:"Which sentence most effectively avoids inappropriate passive voice?",
+ o:["Mistakes were made and the situation was mishandled.",
+    "The committee made mistakes and mishandled the situation.",
+    "It can be said that the handling of the situation was less than ideal.",
+    "The mishandling of the situation was engaged in by senior staff."], a:1,
+ e:"B is direct, active, and assigns clear responsibility. A uses the notorious 'mistakes were made' dodge — passive voice that evades accountability. C is wordy and evasive. D is grammatically awkward passive."},
+
+{c:"Clarity & Style",
+ q:"Which sentence contains a formal register error?",
+ o:["The committee has resolved to defer the matter to a specialist subgroup.",
+    "The findings, whilst illuminating, raise questions warranting further investigation.",
+    "We're gonna need to look into this way more carefully before any decision.",
+    "The evidence adduced at trial was insufficient to sustain the conviction."], a:2,
+ e:"C uses informal, colloquial language ('gonna', 'way more') that is inappropriate in any formal professional context. The other options use elevated, precise register consistent with formal written English."},
+
+// ARTICLES & DETERMINERS
+{c:"Articles & Determiners",
+ q:"She has ___ extraordinary command of both the technical and rhetorical dimensions of the argument.",
+ o:["a","an","the","—"], a:1,
+ e:"'An extraordinary command' — 'an' is used before words beginning with a vowel sound. 'Extraordinary' begins with a vowel sound /ɪk/, so 'an' is correct. 'A extraordinary' is wrong."},
+
+{c:"Articles & Determiners",
+ q:"___ evidence presented at the inquest was largely circumstantial and inconclusive.",
+ o:["The","A","An","—"], a:0,
+ e:"'The evidence' uses the definite article because the post-modifier ('presented at the inquest') makes it specific — it refers to particular, identifiable evidence. 'Evidence' is uncountable, so 'A/An' cannot be used."},
+
+// PREPOSITIONS
+{c:"Prepositions",
+ q:"She remained committed ___ the project despite mounting criticism from senior colleagues.",
+ o:["for","in","to","at"], a:2,
+ e:"'Committed to' is the fixed collocation. You are committed TO a goal, cause, or project — not 'for' or 'in'."},
+
+{c:"Prepositions",
+ q:"The discrepancy between the projections and the actual figures is ___ little consequence.",
+ o:["of","for","with","in"], a:0,
+ e:"'Of little/great consequence' is the standard fixed expression. 'Of' is used with abstract nouns to indicate quality or degree: 'of importance', 'of value', 'of interest'."},
+
+// EXTRA CHALLENGING
+{c:"Complex Structures",
+ q:"___ difficult the negotiations proved, the final agreement was widely praised as a landmark.",
+ o:["However","Although","Despite","Nevertheless"], a:0,
+ e:"'However + adjective + subject + verb' is the correct concessive structure: 'However difficult the negotiations proved…'. 'Although' needs a full clause without the fronted adjective; 'Despite' needs a gerund or noun phrase."},
+
+{c:"Conditionals",
+ q:"Had I known about the allegations sooner, I ___ the matter to the appropriate authority.",
+ o:["would refer","referred","would have referred","had referred"], a:2,
+ e:"Type-3 conditional (inverted form): 'Had I known' = 'If I had known'. The main clause requires 'would have + past participle' to match the hypothetical past condition."},
+
+{c:"Perfect Tenses",
+ q:"The archaeologist announced that the artefact ___ the collection by at least two centuries.",
+ o:["predates","is predating","predated","had predated"], a:3,
+ e:"'Had predated' (past perfect) correctly situates the artefact's age earlier than an already-past reference point established in the announcement. The past perfect captures the relative sequencing."},
+
+{c:"Modal Verbs",
+ q:"This disaster ___ prevented had the standard safety protocols been followed from the outset.",
+ o:["could have been","should be","would be","may be"], a:0,
+ e:"'Could have been prevented' uses the past modal passive to describe an unrealised past possibility. 'Would have been' is also possible (certainty), but 'could have been' specifically highlights the feasibility of prevention."},
+
+{c:"Subjunctive",
+ q:"Lest the details ___ to the press before the official announcement, all staff were asked to sign a confidentiality agreement.",
+ o:["leaked","leak","leaking","would leak"], a:1,
+ e:"'Lest' is a formal subordinating conjunction meaning 'for fear that', and it triggers the subjunctive: the base form 'leak'. 'Lest' + base verb is a formal, literary structure largely preserved in legal and official writing."},
+
+]; // end QB
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let S = {
+  mode:null, qs:[], idx:0, score:0,
+  streak:0, maxStreak:0,
+  answered:false, timer:null,
+  timeLeft:15, qStart:0,
+  results:[],
+};
+
+// ── UTILS ──────────────────────────────────────────────────────────────────
+function shuffle(a){
+  const b=[...a];
+  for(let i=b.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [b[i],b[j]]=[b[j],b[i]];
+  }
+  return b;
+}
+
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>
+    s.classList.toggle('hidden',s.id!==id));
+}
+
+function getHS(){return+localStorage.getItem('em_hs')||0}
+function setHS(n){localStorage.setItem('em_hs',n)}
+
+function goHome(){
+  show('home');
+  document.getElementById('hs-val').textContent=getHS().toLocaleString();
+}
+
+function confirmQuit(){
+  if(confirm('Quit this round? Progress will be lost.')){
+    clearInterval(S.timer);
+    goHome();
+  }
+}
+
+// ── START ──────────────────────────────────────────────────────────────────
+function startGame(mode){
+  clearInterval(S.timer);
+  const all=shuffle(QB);
+  const count=mode==='quickfire'?10:mode==='marathon'?25:all.length;
+  S={mode,qs:all.slice(0,count),idx:0,score:0,
+     streak:0,maxStreak:0,answered:false,
+     timer:null,timeLeft:15,qStart:Date.now(),results:[]};
+  document.getElementById('timer-wrap').style.display=
+    mode==='quickfire'?'block':'none';
+  show('game');
+  renderQ();
+}
+
+// ── RENDER QUESTION ────────────────────────────────────────────────────────
+function renderQ(){
+  const q=S.qs[S.idx];
+  S.answered=false;
+
+  const tot=S.qs.length;
+  document.getElementById('prog-fill').style.width=(S.idx/tot*100)+'%';
+  document.getElementById('score-num').textContent=S.score.toLocaleString();
+  document.getElementById('streak-badge').textContent='🔥 '+S.streak;
+  document.getElementById('q-cat').textContent=q.c;
+  document.getElementById('q-num').textContent=
+    'Q'+(S.idx+1)+(tot===QB.length?' / ∞':' / '+tot);
+
+  document.getElementById('q-text').innerHTML=
+    q.q.replace(/___/g,'<span class="blank">___</span>');
+
+  const letters=['A','B','C','D'];
+  const list=document.getElementById('opts');
+  list.innerHTML='';
+  q.o.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt';
+    btn.innerHTML=`<div class="opt-letter">${letters[i]}</div><div class="opt-text">${opt}</div>`;
+    btn.onclick=()=>pick(i);
+    list.appendChild(btn);
+  });
+
+  document.getElementById('fb-panel').classList.add('hidden');
+  document.getElementById('q-scroll').scrollTop=0;
+
+  clearInterval(S.timer);
+  S.qStart=Date.now();
+  if(S.mode==='quickfire'){
+    S.timeLeft=15;
+    renderTimer();
+    S.timer=setInterval(()=>{
+      S.timeLeft--;
+      renderTimer();
+      if(S.timeLeft<=0){clearInterval(S.timer);timeoutQ();}
+    },1000);
+  }
+}
+
+function renderTimer(){
+  const f=document.getElementById('timer-fill');
+  f.style.width=(S.timeLeft/15*100)+'%';
+  f.classList.toggle('danger',S.timeLeft<=5);
+}
+
+function timeoutQ(){
+  if(S.answered)return;
+  S.answered=true;
+  const q=S.qs[S.idx];
+  document.querySelectorAll('.opt').forEach((b,i)=>{
+    b.onclick=null;
+    b.classList.add(i===q.a?'reveal':'dim');
+  });
+  S.streak=0;
+  document.getElementById('streak-badge').textContent='🔥 0';
+  S.results.push({ok:false,c:q.c,t:15});
+  showFB(false,'⏱ Time\'s up! '+q.e,false);
+}
+
+// ── PICK ANSWER ────────────────────────────────────────────────────────────
+function pick(chosen){
+  if(S.answered)return;
+  S.answered=true;
+  clearInterval(S.timer);
+
+  const q=S.qs[S.idx];
+  const ok=chosen===q.a;
+  const t=Math.round((Date.now()-S.qStart)/1000);
+
+  document.querySelectorAll('.opt').forEach((b,i)=>{
+    b.onclick=null;
+    if(i===chosen) b.classList.add(ok?'correct':'wrong');
+    else if(i===q.a&&!ok) b.classList.add('reveal');
+    else b.classList.add('dim');
+  });
+
+  if(ok){
+    let pts=100+S.streak*10;
+    if(S.mode==='quickfire') pts+=S.timeLeft*5;
+    S.score+=pts;
+    S.streak++;
+    if(S.streak>S.maxStreak)S.maxStreak=S.streak;
+    document.getElementById('score-num').textContent=S.score.toLocaleString();
+    document.getElementById('streak-badge').textContent='🔥 '+S.streak;
+  } else {
+    S.streak=0;
+    document.getElementById('streak-badge').textContent='🔥 0';
+  }
+
+  S.results.push({ok,c:q.c,t});
+  const finalWrong=!ok&&S.mode==='suddendeath';
+  showFB(ok,q.e,finalWrong);
+}
+
+// ── FEEDBACK ───────────────────────────────────────────────────────────────
+function showFB(ok,exp,finalWrong){
+  const panel=document.getElementById('fb-panel');
+  const icon=document.getElementById('fb-icon');
+  const title=document.getElementById('fb-title');
+  document.getElementById('fb-exp').textContent=exp;
+
+  icon.className='fb-icon '+(ok?'ok':'no');
+  icon.textContent=ok?'✓':'✗';
+  title.className='fb-title '+(ok?'ok':'no');
+  title.textContent=ok?'Correct!':'Not quite.';
+
+  const isLast=S.idx>=S.qs.length-1;
+  const btn=document.getElementById('next-btn');
+  if(finalWrong||isLast){
+    btn.textContent='See Results →';
+    btn.onclick=endGame;
+  } else {
+    btn.textContent='Next →';
+    btn.onclick=nextQ;
+  }
+
+  panel.classList.remove('hidden');
+  setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+}
+
+function nextQ(){
+  S.idx++;
+  if(S.idx>=S.qs.length){endGame();return;}
+  renderQ();
+  document.getElementById('q-scroll').scrollTop=0;
+}
+
+// ── END GAME ───────────────────────────────────────────────────────────────
+function endGame(){
+  const total=S.results.length;
+  const correct=S.results.filter(r=>r.ok).length;
+  const pct=total?Math.round(correct/total*100):0;
+  const avgT=total?(S.results.reduce((s,r)=>s+r.t,0)/total).toFixed(1):'—';
+
+  if(S.score>getHS())setHS(S.score);
+
+  const stars=pct===100?4:pct>=80?3:pct>=60?2:1;
+  const titles={1:'Keep Practising',2:'Good Work!',3:'Excellent!',4:'🎉 Perfect!'};
+  document.getElementById('res-title').textContent=titles[stars];
+  document.getElementById('res-pct').textContent=pct+'%';
+  document.getElementById('res-pts').textContent=S.score.toLocaleString()+' pts';
+
+  const starsEl=document.getElementById('stars');
+  starsEl.innerHTML='';
+  for(let i=1;i<=4;i++){
+    const sp=document.createElement('span');
+    sp.textContent=i<=stars?'⭐':'☆';
+    sp.style.opacity=i<=stars?'1':'0.25';
+    starsEl.appendChild(sp);
+  }
+
+  document.getElementById('s-correct').textContent=correct+'/'+total;
+  document.getElementById('s-streak').textContent=S.maxStreak;
+  document.getElementById('s-score').textContent=S.score.toLocaleString();
+  document.getElementById('s-time').textContent=avgT+(avgT!=='—'?'s':'');
+
+  // Category breakdown
+  const catMap={};
+  S.results.forEach(r=>{
+    if(!catMap[r.c])catMap[r.c]={ok:0,tot:0};
+    catMap[r.c].tot++;
+    if(r.ok)catMap[r.c].ok++;
+  });
+
+  const colors={'Subjunctive':'#7c6fff','Conditionals':'#a855f7',
+    'Perfect Tenses':'#3b82f6','Modal Verbs':'#06b6d4',
+    'Passive & Reporting':'#10b981','Reported Speech':'#22c55e',
+    'Clarity & Style':'#f59e0b','Wish & Regret':'#f43f5e',
+    'Complex Structures':'#ec4899','Articles & Determiners':'#8b5cf6',
+    'Prepositions':'#6366f1','Gerunds & Infinitives':'#14b8a6',
+    'Tense in Clauses':'#0ea5e9'};
+
+  const bd=document.getElementById('breakdown');
+  bd.innerHTML='<div class="bd-title">By Category</div>';
+  Object.entries(catMap).forEach(([cat,d])=>{
+    const p=Math.round(d.ok/d.tot*100);
+    const col=colors[cat]||'#7c6fff';
+    bd.innerHTML+=`<div class="bd-row">
+      <div class="bd-name">${cat}</div>
+      <div class="bd-bar-bg"><div class="bd-bar" style="width:${p}%;background:${col}"></div></div>
+      <div class="bd-sc">${d.ok}/${d.tot}</div>
+    </div>`;
+  });
+
+  document.getElementById('play-again-btn').onclick=()=>startGame(S.mode);
+  show('results');
+}
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+document.getElementById('hs-val').textContent=getHS().toLocaleString();
+</script>
+</body>
+</html>
