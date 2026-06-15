@@ -74,7 +74,7 @@ body{display:flex;flex-direction:column}
 .opt.correct .opt-letter,.opt.reveal .opt-letter{background:var(--success);color:#fff}
 .opt.wrong .opt-letter{background:var(--danger);color:#fff}
 .opt-text{font-size:15px;line-height:1.4;flex:1}
-.fb-panel{background:var(--surface);border-top:1px solid #fff1;padding:15px 15px max(15px,env(safe-area-inset-bottom));flex-shrink:0;animation:slide-up .28s ease}
+.fb-panel{background:var(--surface);border-top:1px solid #fff1;animation:slide-up .28s ease}
 .fb-panel.hidden{display:none}
 .fb-hdr{display:flex;align-items:center;gap:10px;margin-bottom:8px}
 .fb-icon{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
@@ -117,6 +117,25 @@ body{display:flex;flex-direction:column}
 @keyframes pulse-green{0%{box-shadow:0 0 0 0 #22c55e55}60%{box-shadow:0 0 0 14px #22c55e00}100%{box-shadow:0 0 0 0 #22c55e00}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
 @keyframes slide-up{from{transform:translateY(28px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* FEEDBACK PANEL RESTRUCTURE */
+.fb-panel{max-height:78vh;display:flex;flex-direction:column}
+.fb-body{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 15px 4px}
+.fb-footer{flex-shrink:0;padding:10px 15px max(10px,env(safe-area-inset-bottom));background:var(--surface);border-top:1px solid #fff1}
+.fb-section{margin-top:14px;padding-top:13px;border-top:1px solid #fff1}
+.fb-section-label{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent2);margin-bottom:9px}
+.ex-list{list-style:none;display:flex;flex-direction:column;gap:7px}
+.ex-item{background:var(--surface2);border-radius:10px;padding:10px 12px;font-size:13.5px;line-height:1.5;color:var(--text);border-left:2.5px solid var(--accent)}
+.fb-tip{font-size:11.5px;font-family:'Courier New',monospace;background:var(--surface2);border-radius:8px;padding:8px 10px;color:var(--accent2);margin-bottom:10px;line-height:1.55;word-break:break-word}
+.practice-area{width:100%;background:var(--surface2);border:1.5px solid #fff2;border-radius:12px;padding:11px 12px;color:var(--text);font-size:14px;line-height:1.5;resize:none;min-height:80px;font-family:inherit;outline:none;transition:border-color .2s;display:block}
+.practice-area:focus{border-color:var(--accent)}
+.check-btn{width:100%;margin-top:8px;background:var(--surface2);border:1.5px solid var(--accent);border-radius:11px;padding:12px;font-size:14px;font-weight:600;color:var(--accent);cursor:pointer;transition:background .15s,transform .12s}
+.check-btn:active{background:#1a1040;transform:scale(.98)}
+.check-result{margin-top:10px;border-radius:10px;padding:11px 13px;font-size:13px;line-height:1.55}
+.check-result.hidden{display:none}
+.check-result.good{background:#16402a;border:1px solid var(--success);color:#86efac}
+.check-result.neutral{background:var(--surface2);border:1px solid #fff2;color:var(--muted)}
+.check-result.warn{background:#3a2200;border:1px solid var(--warn);color:#fcd34d}
 </style>
 </head>
 <body>
@@ -177,12 +196,27 @@ body{display:flex;flex-direction:column}
     <div class="opts" id="opts"></div>
   </div>
   <div class="fb-panel hidden" id="fb-panel">
-    <div class="fb-hdr">
-      <div class="fb-icon" id="fb-icon"></div>
-      <div class="fb-title" id="fb-title"></div>
+    <div class="fb-body">
+      <div class="fb-hdr">
+        <div class="fb-icon" id="fb-icon"></div>
+        <div class="fb-title" id="fb-title"></div>
+      </div>
+      <div class="fb-exp" id="fb-exp"></div>
+      <div class="fb-section">
+        <div class="fb-section-label">More Examples</div>
+        <ul class="ex-list" id="fb-ex-list"></ul>
+      </div>
+      <div class="fb-section">
+        <div class="fb-section-label">Try It Yourself</div>
+        <div class="fb-tip" id="fb-tip"></div>
+        <textarea class="practice-area" id="practice-area" placeholder="Write your own sentence using this grammar rule…" rows="3"></textarea>
+        <button class="check-btn" onclick="checkSentence()">Check my sentence →</button>
+        <div class="check-result hidden" id="check-result"></div>
+      </div>
     </div>
-    <div class="fb-exp" id="fb-exp"></div>
-    <button class="next-btn" id="next-btn">Next →</button>
+    <div class="fb-footer">
+      <button class="next-btn" id="next-btn">Next →</button>
+    </div>
   </div>
 </div>
 
@@ -215,241 +249,379 @@ const QB = [
 {c:"Subjunctive",
  q:"The board requires that every delegate ___ present for the final vote.",
  o:["is","be","was","were"], a:1,
- e:"After mandative verbs ('require', 'insist', 'demand', 'recommend'), English uses the present subjunctive — the bare infinitive regardless of person. 'Is' is indicative mood and is incorrect in formal usage."},
+ e:"After mandative verbs ('require', 'insist', 'demand', 'recommend'), English uses the present subjunctive — the bare infinitive regardless of person. 'Is' is indicative mood and is incorrect in formal usage.",
+ ex:["The university requires that every candidate be fluent in at least one language.","Policy requires that all staff be notified of changes at least two weeks in advance.","The contract requires that both parties be represented by counsel at the signing."],
+ tip:"PATTERN: [verb/expression] + that + [subject] + BASE VERB (no -s, no auxiliary)",
+ kw:["that","be"]},
 
 {c:"Subjunctive",
  q:"It is paramount that the committee ___ any conflict of interest before proceedings begin.",
  o:["discloses","disclose","will disclose","disclosed"], a:1,
- e:"'It is paramount/essential/crucial that' triggers the mandative subjunctive: the base form 'disclose', not the third-person -s form. This pattern is standard in formal and legal English."},
+ e:"'It is paramount/essential/crucial that' triggers the mandative subjunctive: the base form 'disclose', not the third-person -s form. This pattern is standard in formal and legal English.",
+ ex:["It is essential that the surgeon disclose any prior relationship with the patient.","It is imperative that the council vote on this before the session ends.","It is crucial that every applicant submit a completed form before the deadline."],
+ tip:"PATTERN: It is [adjective] + that + [subject] + BASE VERB",
+ kw:["that","it is"]},
 
 {c:"Subjunctive",
  q:"If I ___ in your position, I would decline the offer without hesitation.",
  o:["am","was","be","were"], a:3,
- e:"'Were' is the past subjunctive used in counterfactual if-clauses. 'If I were you' remains the standard form in formal writing. 'Was' is increasingly heard informally but is not accepted in careful written usage."},
+ e:"'Were' is the past subjunctive used in counterfactual if-clauses. 'If I were you' remains the standard form in formal writing. 'Was' is increasingly heard informally but is not accepted in careful written usage.",
+ ex:["If I were the director, I would restructure the entire department immediately.","If he were truly committed, he would have attended every meeting.","If she were in my position, she would understand why this decision was difficult."],
+ tip:"PATTERN: If + [subject] + WERE + [complement], [subject] + WOULD + BASE VERB",
+ kw:["were","would"]},
 
 {c:"Subjunctive",
  q:"The statute stipulates that anyone convicted of a first offence ___ a suspended sentence.",
  o:["is given","be given","was given","will be given"], a:1,
- e:"The mandative subjunctive in passive voice takes 'be + past participle': 'be given'. 'Is given' (present indicative) is wrong in this formal legal register."},
+ e:"The mandative subjunctive in passive voice takes 'be + past participle': 'be given'. 'Is given' (present indicative) is wrong in this formal legal register.",
+ ex:["The regulations stipulate that every new hire be given a two-week orientation.","The treaty stipulates that all disputes be resolved through binding arbitration.","The guidelines recommend that candidates be assessed on merit alone."],
+ tip:"PATTERN: [subject] + stipulates/recommends/demands + that + [subject] + BE + PAST PARTICIPLE",
+ kw:["that","be"]},
 
 {c:"Subjunctive",
  q:"She would rather her assistant ___ the draft independently before their next meeting.",
  o:["prepares","prepare","prepared","had prepared"], a:2,
- e:"'Would rather + object + verb' takes a past subjunctive: 'would rather he prepared' (not base form). This expresses a preference about another person's present or future action."},
+ e:"'Would rather + object + verb' takes a past subjunctive: 'would rather he prepared' (not base form). This expresses a preference about another person's present or future action.",
+ ex:["I would rather she handled the negotiation directly than through an intermediary.","He would rather the committee reviewed his proposal before the public announcement.","They would rather the agreement remained confidential until all parties had signed."],
+ tip:"PATTERN: [subject] + would rather + [object] + PAST SUBJUNCTIVE (same as past simple)",
+ kw:["would rather","rather"]},
 
 {c:"Subjunctive",
  q:"The motion proposed that the hearing ___ until new evidence could be reviewed.",
  o:["is adjourned","was adjourned","be adjourned","will be adjourned"], a:2,
- e:"'Proposed that' triggers the passive subjunctive: 'be adjourned'. Both active and passive subjunctives use the base form of 'be'."},
+ e:"'Proposed that' triggers the passive subjunctive: 'be adjourned'. Both active and passive subjunctives use the base form of 'be'.",
+ ex:["The committee proposed that the vote be postponed pending further investigation.","The judge ordered that all evidence be submitted no later than Friday.","The board moved that the merger proposal be tabled for the following quarter."],
+ tip:"PATTERN: [subject] + proposed/ordered/moved + that + [subject] + BE + PAST PARTICIPLE",
+ kw:["that","be"]},
 
 // CONDITIONALS
 {c:"Conditionals",
  q:"If the company ___ the merger earlier, they ___ in a far stronger position today.",
  o:["completed / would be","had completed / would be","completed / would have been","has completed / would be"], a:1,
- e:"A mixed conditional: past unrealised condition (if + past perfect) with a present result (would + base verb). Had they completed it = they didn't; would be = present consequence."},
+ e:"A mixed conditional: past unrealised condition (if + past perfect) with a present result (would + base verb). Had they completed it = they didn't; would be = present consequence.",
+ ex:["If she had studied law instead, she would be a barrister by now.","Had they invested in renewables earlier, the company would be far more profitable today.","If he had taken better care of his health then, he would feel much stronger now."],
+ tip:"PATTERN (mixed): If + [subject] + HAD + [pp], [subject] + WOULD + BASE VERB (present result)",
+ kw:["had","would be"]},
 
 {c:"Conditionals",
  q:"___ the documents been filed on time, the lawsuit would never have reached court.",
  o:["Should","Were","Had","Would"], a:2,
- e:"'Had the documents been filed' is a formal inverted type-3 conditional — the auxiliary 'had' is fronted, replacing 'if'. This structure appears frequently in legal and formal written English."},
+ e:"'Had the documents been filed' is a formal inverted type-3 conditional — the auxiliary 'had' is fronted, replacing 'if'. This structure appears frequently in legal and formal written English.",
+ ex:["Had the budget been approved on time, the project would have launched six months earlier.","Had she been informed of the risk, she would never have signed the agreement.","Had the evidence been preserved correctly, the case would have been far stronger."],
+ tip:"PATTERN: Had + [subject] + [pp] (inverted type 3 — replaces 'If had been')",
+ kw:["had","would have"]},
 
 {c:"Conditionals",
  q:"___ she to resign, the entire project would be thrown into immediate jeopardy.",
  o:["Should","Were","Had","Could"], a:1,
- e:"'Were she to resign' is an inverted type-2 conditional equivalent to 'If she were to resign'. The structure is 'Were + subject + to + infinitive'. It conveys a hypothetical present/future scenario."},
+ e:"'Were she to resign' is an inverted type-2 conditional equivalent to 'If she were to resign'. The structure is 'Were + subject + to + infinitive'. It conveys a hypothetical present/future scenario.",
+ ex:["Were he to contest the decision, the entire process would need to be restarted.","Were the bridge to fail, the consequences for the city would be catastrophic.","Were the talks to collapse now, years of diplomatic progress would be lost."],
+ tip:"PATTERN: Were + [subject] + to + BASE VERB, [subject] + would + BASE VERB",
+ kw:["were","to","would"]},
 
 {c:"Conditionals",
  q:"___ you need further clarification, please do not hesitate to contact our office.",
  o:["Should","Were","Had","Would"], a:0,
- e:"'Should you need' is an inverted conditional using 'should' to mean 'in the event that'. It replaces 'If you should need' and is common in formal correspondence."},
+ e:"'Should you need' is an inverted conditional using 'should' to mean 'in the event that'. It replaces 'If you should need' and is common in formal correspondence.",
+ ex:["Should you encounter any difficulties, please contact the helpdesk immediately.","Should the inspection reveal any irregularities, the licence will be suspended.","Should further evidence come to light, the committee reserves the right to reconvene."],
+ tip:"PATTERN: Should + [subject] + BASE VERB, [main clause] (= 'If you should…')",
+ kw:["should"]},
 
 {c:"Conditionals",
  q:"They would never have signed the contract if they ___ the full implications.",
  o:["understood","would understand","had understood","have understood"], a:2,
- e:"Type-3 conditional: the if-clause requires past perfect ('had understood') for a hypothetical past action. 'Would understand' cannot appear in the if-clause — it belongs in the main clause."},
+ e:"Type-3 conditional: the if-clause requires past perfect ('had understood') for a hypothetical past action. 'Would understand' cannot appear in the if-clause — it belongs in the main clause.",
+ ex:["She would never have agreed had she read the fine print more carefully.","The board would not have approved the project if they had known about the risks.","He would have declined the role if the company had disclosed its financial situation."],
+ tip:"PATTERN: [subject] + WOULD HAVE + [pp] + if + [subject] + HAD + [pp]",
+ kw:["would have","had","if"]},
 
 {c:"Conditionals",
  q:"Even if the evidence ___ otherwise, the methodology would still be fundamentally flawed.",
  o:["suggests","suggested","had suggested","would suggest"], a:1,
- e:"'Even if' with a counterfactual uses the past subjunctive ('suggested') — a type-2 conditional. The speaker implies the evidence does NOT suggest otherwise."},
+ e:"'Even if' with a counterfactual uses the past subjunctive ('suggested') — a type-2 conditional. The speaker implies the evidence does NOT suggest otherwise.",
+ ex:["Even if he apologised sincerely, the damage to the relationship would be hard to repair.","Even if the tests came back negative, the doctor would still recommend a follow-up scan.","Even if they lowered the price, we would still need board approval to proceed."],
+ tip:"PATTERN: Even if + [subject] + PAST SIMPLE, [subject] + WOULD + BASE VERB",
+ kw:["even if","would"]},
 
 // PERFECT TENSES
 {c:"Perfect Tenses",
  q:"By the time the audit concluded, the CFO ___ the figures on three separate occasions.",
  o:["reviewed","has reviewed","had reviewed","was reviewing"], a:2,
- e:"Past perfect ('had reviewed') is required for an action completed BEFORE another past action ('the audit concluded'). Present perfect 'has reviewed' does not fit a past narrative."},
+ e:"Past perfect ('had reviewed') is required for an action completed BEFORE another past action ('the audit concluded'). Present perfect 'has reviewed' does not fit a past narrative.",
+ ex:["By the time the arbitrator arrived, both parties had already reached a settlement.","The defendant had fled the country long before investigators traced his whereabouts.","She had been with the firm for twenty years before she was offered a partnership."],
+ tip:"PATTERN: By the time [past event], [subject] + HAD + [pp] (earlier past action)",
+ kw:["had","by the time","before","already"]},
 
 {c:"Perfect Tenses",
  q:"She seems ___ the entire situation — she hasn't responded to a single message.",
  o:["to misunderstand","misunderstanding","to have misunderstood","to be misunderstanding"], a:2,
- e:"'Seems to have misunderstood' uses the perfect infinitive to show the misunderstanding occurred BEFORE the present moment. 'Seems to misunderstand' would imply simultaneity with the seeming."},
+ e:"'Seems to have misunderstood' uses the perfect infinitive to show the misunderstanding occurred BEFORE the present moment. 'Seems to misunderstand' would imply simultaneity with the seeming.",
+ ex:["He appears to have overlooked the amended clause in the final version of the contract.","The committee seems to have reached its decision before all the evidence was presented.","She is believed to have known about the irregularities months before they were reported."],
+ tip:"PATTERN: [subject] + seems/appears/is believed + TO HAVE + [pp]",
+ kw:["to have"]},
 
 {c:"Perfect Tenses",
  q:"By next spring, the research team ___ on this project for a full decade.",
  o:["will work","will be working","will have been working","have worked"], a:2,
- e:"Future perfect continuous ('will have been working') emphasises the ongoing duration of an activity up to a specific future point. 'Will have worked' (simple) is also possible but less emphatic about the continuous nature."},
+ e:"Future perfect continuous ('will have been working') emphasises the ongoing duration of an activity up to a specific future point. 'Will have worked' (simple) is also possible but less emphatic about the continuous nature.",
+ ex:["By the time she retires, she will have been serving on the board for three decades.","Next month, I will have been living in this city for exactly ten years.","By the deadline, the engineers will have been solving this problem for two full years."],
+ tip:"PATTERN: By [future point], [subject] + WILL HAVE BEEN + [present participle]",
+ kw:["will have been"]},
 
 {c:"Perfect Tenses",
  q:"She ___ for the company for six years before she finally received her first promotion.",
  o:["was working","has worked","worked","had been working"], a:3,
- e:"Past perfect continuous ('had been working') stresses the ongoing duration of an action leading up to a past event. It emphasises how long she waited before the promotion."},
+ e:"Past perfect continuous ('had been working') stresses the ongoing duration of an action leading up to a past event. It emphasises how long she waited before the promotion.",
+ ex:["He had been lobbying for the reform for a decade before it finally passed into law.","The team had been negotiating for weeks before they finally reached a compromise.","She had been battling the illness for months before a correct diagnosis was made."],
+ tip:"PATTERN: [subject] + HAD BEEN + [present participle] + for [duration] + before [past event]",
+ kw:["had been","for","before"]},
 
 {c:"Perfect Tenses",
  q:"He is reported ___ the country before the arrest warrant was issued.",
  o:["to flee","to have fled","fleeing","to be fleeing"], a:1,
- e:"With passive reporting verbs ('is reported/believed/said'), a perfect infinitive ('to have fled') places the reported event in the past — earlier than the reporting moment. This is common in formal and journalistic registers."},
+ e:"With passive reporting verbs ('is reported/believed/said'), a perfect infinitive ('to have fled') places the reported event in the past — earlier than the reporting moment. This is common in formal and journalistic registers.",
+ ex:["The accused is understood to have surrendered herself to police in the early hours.","The former minister is alleged to have diverted funds to an offshore account.","The whistleblower is said to have approached the press after internal complaints were ignored."],
+ tip:"PATTERN: [subject] + IS [reporting verb] + TO HAVE + [pp] (event before the reporting moment)",
+ kw:["to have","is"]},
 
 {c:"Perfect Tenses",
  q:"The director acknowledged that she ___ about the structural risks for months.",
  o:["warned","has been warned","had been warned","was warned"], a:2,
- e:"Backshift in reported speech: since 'acknowledged' is past, the earlier event shifts to past perfect: 'had been warned'. 'Was warned' is simple past and doesn't capture the sequence clearly."},
+ e:"Backshift in reported speech: since 'acknowledged' is past, the earlier event shifts to past perfect: 'had been warned'. 'Was warned' is simple past and doesn't capture the sequence clearly.",
+ ex:["The CEO admitted that senior management had been informed of the risks months earlier.","The report confirmed that protocols had been breached on multiple occasions.","The inquiry found that witnesses had been pressured into changing their statements."],
+ tip:"PATTERN: [subject] + acknowledged/admitted/confirmed + that + [subject] + HAD BEEN + [pp]",
+ kw:["had been","that"]},
 
 // MODAL VERBS
 {c:"Modal Verbs",
  q:"You ___ told me about the change — I had no idea it was happening.",
  o:["should","should have","must have","ought to"], a:1,
- e:"'Should have told' (modal perfect) expresses a past obligation that was NOT fulfilled — a criticism. 'Should' alone refers to present/future obligations and cannot refer to past missed duties."},
+ e:"'Should have told' (modal perfect) expresses a past obligation that was NOT fulfilled — a criticism. 'Should' alone refers to present/future obligations and cannot refer to past missed duties.",
+ ex:["She should have disclosed her interest in the company before the vote took place.","The contractor should have sought approval before making structural changes.","We should have consulted the legal team before signing any preliminary agreements."],
+ tip:"PATTERN: [subject] + SHOULD HAVE + [pp] (past obligation not fulfilled — criticism)",
+ kw:["should have"]},
 
 {c:"Modal Verbs",
  q:"She ___ been working all night; her desk is covered in notes and empty coffee cups.",
  o:["must have","should have","could have","would have"], a:0,
- e:"'Must have been working' expresses strong logical deduction about a past continuous action based on present evidence. 'Could have been' would only suggest possibility, not near-certainty."},
+ e:"'Must have been working' expresses strong logical deduction about a past continuous action based on present evidence. 'Could have been' would only suggest possibility, not near-certainty.",
+ ex:["He must have been rehearsing for weeks — his performance was completely flawless.","They must have been negotiating in secret; the announcement came as a total surprise.","She must have been travelling when the decision was announced — she only heard yesterday."],
+ tip:"PATTERN: [subject] + MUST HAVE BEEN + [present participle] (strong deduction about past continuous action)",
+ kw:["must have been"]},
 
 {c:"Modal Verbs",
  q:"You ___ have brought an umbrella — the forecast was clear all day.",
  o:["mustn't","needn't","shouldn't","couldn't"], a:1,
- e:"'Needn't have brought' means the action WAS done but was unnecessary. 'Shouldn't have' implies the action was wrong or inadvisable, not merely needless. 'Mustn't have' is not used for past logical deduction."},
+ e:"'Needn't have brought' means the action WAS done but was unnecessary. 'Shouldn't have' implies the action was wrong or inadvisable, not merely needless. 'Mustn't have' is not used for past logical deduction.",
+ ex:["We needn't have prepared so many slides — the presentation was cut short.","He needn't have sent a formal letter; a quick email would have sufficed.","She needn't have rushed — the meeting had already been postponed when she arrived."],
+ tip:"PATTERN: [subject] + NEEDN'T HAVE + [pp] (action was done, but it was unnecessary)",
+ kw:["needn't have"]},
 
 {c:"Modal Verbs",
  q:"The witness ___ have seen the suspect — she was in another country at the time.",
  o:["mustn't","couldn't","shouldn't","needn't"], a:1,
- e:"'Couldn't have seen' expresses logical impossibility about the past. An alibi makes witnessing impossible. 'Mustn't have' is not standard for deduction — use 'can't have' or 'couldn't have'."},
+ e:"'Couldn't have seen' expresses logical impossibility about the past. An alibi makes witnessing impossible. 'Mustn't have' is not standard for deduction — use 'can't have' or 'couldn't have'.",
+ ex:["She couldn't have signed the document — she was hospitalised on the date it bears.","He couldn't have leaked the information; he didn't have clearance to access those files.","They couldn't have colluded — they were working on different continents."],
+ tip:"PATTERN: [subject] + COULDN'T HAVE + [pp] (logical impossibility about the past)",
+ kw:["couldn't have"]},
 
 {c:"Modal Verbs",
  q:"They ___ cancelled the event without informing ticket-holders in advance.",
  o:["couldn't have","needn't have","shouldn't have","mightn't have"], a:2,
- e:"'Shouldn't have cancelled' expresses that the action was wrong or inappropriate — they did it, but it was inadvisable. 'Couldn't have' = impossible; 'needn't have' = unnecessary (but not morally wrong)."},
+ e:"'Shouldn't have cancelled' expresses that the action was wrong or inappropriate — they did it, but it was inadvisable. 'Couldn't have' = impossible; 'needn't have' = unnecessary (but not morally wrong).",
+ ex:["The surgeon shouldn't have operated without the patient's fully informed consent.","Management shouldn't have released those figures before the audit was complete.","He shouldn't have made that promise without consulting the rest of the team first."],
+ tip:"PATTERN: [subject] + SHOULDN'T HAVE + [pp] (past action that was wrong or inadvisable)",
+ kw:["shouldn't have"]},
 
 // PASSIVE & REPORTING
 {c:"Passive & Reporting",
  q:"Three executives ___ in connection with the fraud before the investigation was quietly shelved.",
  o:["were arrested","have been arrested","had been arrested","are arrested"], a:2,
- e:"Past perfect passive ('had been arrested') is correct: the arrests preceded the investigation being shelved — two sequential past events. The earlier one takes the past perfect."},
+ e:"Past perfect passive ('had been arrested') is correct: the arrests preceded the investigation being shelved — two sequential past events. The earlier one takes the past perfect.",
+ ex:["By the time the trial began, two key witnesses had been approached by the defence.","The building had been evacuated hours before the official emergency order was issued.","Several complaints had been filed against the company long before the regulator intervened."],
+ tip:"PATTERN: [subject] + HAD BEEN + [pp] (passive action completed before another past event)",
+ kw:["had been"]},
 
 {c:"Passive & Reporting",
  q:"The contract ___ to have been signed under duress, according to the plaintiff's legal team.",
  o:["is claimed","is shown","is described","is noted"], a:0,
- e:"'Is claimed to have been signed' uses the passive reporting structure (is + reporting verb + perfect infinitive). This construction is standard in legal and journalistic writing to attribute a claim without endorsing it."},
+ e:"'Is claimed to have been signed' uses the passive reporting structure (is + reporting verb + perfect infinitive). This construction is standard in legal and journalistic writing to attribute a claim without endorsing it.",
+ ex:["The agreement is alleged to have been backdated to avoid the tax liability.","The funds are reported to have been transferred to an account in a tax haven.","The document is understood to have been forged by a former employee of the firm."],
+ tip:"PATTERN: [subject] + IS [reporting verb] + TO HAVE BEEN + [pp]",
+ kw:["to have been","is"]},
 
 {c:"Passive & Reporting",
  q:"It is widely believed that the artefact ___ the collection by at least two centuries.",
  o:["predates","has predated","had predated","predated"], a:2,
- e:"The past perfect ('had predated') correctly situates the artefact's age relative to an earlier established point. Since the sentence concerns a historical claim about relative chronology, the past perfect is the precise choice."},
+ e:"The past perfect ('had predated') correctly situates the artefact's age relative to an earlier established point. Since the sentence concerns a historical claim about relative chronology, the past perfect is the precise choice.",
+ ex:["The inscription had predated the building's construction by several centuries, scholars found.","It emerged that the treaty had predated the formation of the state it was meant to govern.","Analysis revealed that the painting had predated the attributed artist's birth by at least a decade."],
+ tip:"PATTERN: [subject] + HAD + [pp] + [object] + by [amount] (past perfect for relative chronology)",
+ kw:["had"]},
 
 // REPORTED SPEECH
 {c:"Reported Speech",
  q:"She told the panel: 'I will resign if the proposal is approved.' → She told the panel that she ___ if the proposal ___.",
  o:["will resign / is approved","would resign / was approved","would resign / had been approved","resigned / is approved"], a:1,
- e:"Backshift: 'will' → 'would'; present simple 'is' → past simple 'was'. Both verbs shift back one tense when the reporting verb is past ('told')."},
+ e:"Backshift: 'will' → 'would'; present simple 'is' → past simple 'was'. Both verbs shift back one tense when the reporting verb is past ('told').",
+ ex:["He informed the committee that he would contest the decision if the process were not reviewed.","She announced that she would step down as soon as a suitable replacement was found.","The director stated that he would authorise the transfer once all signatures were obtained."],
+ tip:"PATTERN: said/told + that + [subject] + WOULD + BASE VERB + if/once + [subject] + WAS/WERE + [pp]",
+ kw:["would","was","that"]},
 
 {c:"Reported Speech",
  q:"He said: 'I have been trying to reach you for hours.' → He said that he ___ to reach me for hours.",
  o:["has been trying","had been trying","was trying","tried"], a:1,
- e:"Present perfect continuous → past perfect continuous in reported speech: 'have been trying' → 'had been trying'. Backshift moves each tense one step further back."},
+ e:"Present perfect continuous → past perfect continuous in reported speech: 'have been trying' → 'had been trying'. Backshift moves each tense one step further back.",
+ ex:["She told the court that she had been attempting to resolve the matter through internal channels.","He explained that he had been seeking legal advice before approaching the board directly.","The manager admitted that the department had been operating below capacity since the restructuring."],
+ tip:"PATTERN: said/explained + that + [subject] + HAD BEEN + [present participle]",
+ kw:["had been","that"]},
 
 {c:"Reported Speech",
  q:"'You must submit your report by Friday,' she told him. → She told him that he ___ his report by Friday.",
  o:["must submit","had to submit","should have submitted","ought to submit"], a:1,
- e:"'Must' (obligation) typically backshifts to 'had to' in reported speech. 'Should have submitted' would imply a past missed deadline, changing the meaning."},
+ e:"'Must' (obligation) typically backshifts to 'had to' in reported speech. 'Should have submitted' would imply a past missed deadline, changing the meaning.",
+ ex:["The supervisor told her that she had to complete the induction before taking on any clients.","The regulations stated that all contractors had to register with the central authority.","The chairman informed the board that they had to reach a decision by the end of the quarter."],
+ tip:"PATTERN: told/informed + [object] + that + [subject] + HAD TO + BASE VERB",
+ kw:["had to","that"]},
 
 // WISH & REGRET
 {c:"Wish & Regret",
  q:"I wish I ___ the truth when I had the chance — it's too late to fix anything now.",
  o:["tell","told","had told","would tell"], a:2,
- e:"'Wish' + past perfect ('had told') expresses regret about an irreversible past action. 'Wish' + past simple ('told') expresses a wish for a present situation to be different."},
+ e:"'Wish' + past perfect ('had told') expresses regret about an irreversible past action. 'Wish' + past simple ('told') expresses a wish for a present situation to be different.",
+ ex:["I wish I had read the contract more carefully before appending my signature.","She wishes she had raised her concerns during the consultation period, not after the fact.","We all wish the board had sought independent advice before approving that acquisition."],
+ tip:"PATTERN: [subject] + wish(es) + [subject] + HAD + [pp] (regret about an irreversible past action)",
+ kw:["wish","had"]},
 
 {c:"Wish & Regret",
  q:"She wishes she ___ fluent in Mandarin so she could negotiate directly.",
  o:["is","was / were","had been","will be"], a:1,
- e:"'Wish' + past simple/subjunctive ('was' / 'were') expresses a desire for a present situation to be different. 'Were' is more formal. 'Had been' would express regret about the past."},
+ e:"'Wish' + past simple/subjunctive ('was' / 'were') expresses a desire for a present situation to be different. 'Were' is more formal. 'Had been' would express regret about the past.",
+ ex:["He wishes he were more fluent in the legal terminology used in these proceedings.","She wishes the reporting deadline were later so she could gather more supporting data.","I wish the process were more transparent — it is very difficult to follow from the outside."],
+ tip:"PATTERN: [subject] + wish(es) + [subject] + WERE + [complement] (present wish — reality is different)",
+ kw:["wish","were","was"]},
 
 {c:"Wish & Regret",
  q:"If only they ___ more thoroughly before the launch — the recall was catastrophic.",
  o:["test","tested","had tested","would have tested"], a:2,
- e:"'If only' + past perfect expresses a regret about a past event that cannot be reversed. The reference to the recall confirms it is a completed, past scenario."},
+ e:"'If only' + past perfect expresses a regret about a past event that cannot be reversed. The reference to the recall confirms it is a completed, past scenario.",
+ ex:["If only the engineers had stress-tested the system before the full rollout.","If only the committee had consulted affected communities before issuing the decision.","If only she had sought a second opinion — the initial diagnosis turned out to be incorrect."],
+ tip:"PATTERN: If only + [subject] + HAD + [pp] (past regret — cannot be undone)",
+ kw:["if only","had"]},
 
 {c:"Wish & Regret",
  q:"I wish you ___ interrupt me every time I try to make a point in these meetings.",
  o:["don't","didn't","wouldn't","hadn't"], a:2,
- e:"'Wish + subject + would' expresses irritation at a habitual behaviour and a desire for it to change. 'Wouldn't' is the correct form — this construction cannot be replaced by a simple past subjunctive here."},
+ e:"'Wish + subject + would' expresses irritation at a habitual behaviour and a desire for it to change. 'Wouldn't' is the correct form — this construction cannot be replaced by a simple past subjunctive here.",
+ ex:["I wish he wouldn't dismiss every proposal without giving it proper consideration.","She wishes the committee wouldn't make decisions of this magnitude without full consultation.","I wish the press wouldn't publish speculation as though it were confirmed fact."],
+ tip:"PATTERN: [subject] + wish(es) + [subject] + WOULDN'T + BASE VERB (irritation at habitual behaviour)",
+ kw:["wish","wouldn't"]},
 
 // COMPLEX STRUCTURES
 {c:"Complex Structures",
  q:"No sooner ___ the announcement been made ___ the share price began to fall.",
  o:["had / than","did / than","had / when","was / than"], a:0,
- e:"'No sooner… than' requires past perfect + inversion in the first clause: 'No sooner had X happened than Y happened.' 'Scarcely/Hardly' use 'when'; only 'no sooner' uses 'than'."},
+ e:"'No sooner… than' requires past perfect + inversion in the first clause: 'No sooner had X happened than Y happened.' 'Scarcely/Hardly' use 'when'; only 'no sooner' uses 'than'.",
+ ex:["No sooner had the ink dried on the agreement than the first complications emerged.","No sooner had she accepted the position than her predecessor requested a meeting.","No sooner had the verdict been delivered than the defence team announced an appeal."],
+ tip:"PATTERN: No sooner + HAD + [subject] + [pp] + than + [simple past clause]",
+ kw:["no sooner","had","than"]},
 
 {c:"Complex Structures",
  q:"Not until the final hour ___.",
  o:["the negotiations reached a breakthrough","did the negotiations reach a breakthrough","had the negotiations reached a breakthrough","the negotiations were reaching a breakthrough"], a:1,
- e:"Fronting 'not until' requires subject-auxiliary inversion: 'Not until the final hour did the negotiations reach…'. 'Did + base verb' forms the inverted simple past. No inversion (options A, D) is ungrammatical here."},
+ e:"Fronting 'not until' requires subject-auxiliary inversion: 'Not until the final hour did the negotiations reach…'. 'Did + base verb' forms the inverted simple past. No inversion (options A, D) is ungrammatical here.",
+ ex:["Not until the auditors published their findings did the full scale of the fraud become clear.","Not until the third attempt did the committee finally reach a two-thirds majority.","Not until she presented documentary evidence did the board take the allegations seriously."],
+ tip:"PATTERN: Not until [time phrase] + DID + [subject] + BASE VERB (inversion)",
+ kw:["not until","did"]},
 
 {c:"Complex Structures",
  q:"Scarcely ___ she arrived at the office ___ her phone rang with the news.",
  o:["had / when","did / when","had / than","was / before"], a:0,
- e:"'Scarcely had… when' uses past perfect + inversion. 'Scarcely… when' (or 'hardly… when') — NOT 'than'. 'Than' is used only with 'no sooner'."},
+ e:"'Scarcely had… when' uses past perfect + inversion. 'Scarcely… when' (or 'hardly… when') — NOT 'than'. 'Than' is used only with 'no sooner'.",
+ ex:["Scarcely had the conference begun when the power outage plunged the room into darkness.","Scarcely had the new policy been announced when a flood of objections arrived from staff.","Scarcely had she sat down when her phone rang with the news she had been dreading."],
+ tip:"PATTERN: Scarcely + HAD + [subject] + [pp] + when + [simple past] (NOT 'than')",
+ kw:["scarcely","had","when"]},
 
 {c:"Complex Structures",
  q:"Seldom ___ a proposal of such sweeping consequence come before this assembly.",
  o:["does","has","had","is"], a:1,
- e:"The negative adverb 'seldom' triggers subject-auxiliary inversion. Present perfect ('has… come') is used for a general observation about events up to now. 'Does come' is possible for habitual present but less idiomatic in elevated prose."},
+ e:"The negative adverb 'seldom' triggers subject-auxiliary inversion. Present perfect ('has… come') is used for a general observation about events up to now. 'Does come' is possible for habitual present but less idiomatic in elevated prose.",
+ ex:["Seldom has a single ruling had such far-reaching consequences for the industry.","Seldom has a diplomatic initiative gained such rapid international support.","Seldom has a piece of legislation generated such sustained public debate before its passage."],
+ tip:"PATTERN: Seldom + HAS/HAVE + [subject] + [pp] (present perfect with fronted negative adverb)",
+ kw:["seldom","has"]},
 
 {c:"Complex Structures",
  q:"It was not until she read the fine print ___ she realised the full implications of the clause.",
  o:["when","that","which","what"], a:1,
- e:"This is a cleft sentence: 'It was not until… that…'. The word 'that' completes the emphatic cleft structure. 'When' would simply form a time clause and destroy the cleft emphasis."},
+ e:"This is a cleft sentence: 'It was not until… that…'. The word 'that' completes the emphatic cleft structure. 'When' would simply form a time clause and destroy the cleft emphasis.",
+ ex:["It was not until the appeal court intervened that justice was finally served.","It was not until the third review that the errors in the original methodology were identified.","It was not until she re-read the clause that she realised what she had actually agreed to."],
+ tip:"PATTERN: It was not until [event] + THAT + [subject] + [past verb] (emphatic cleft sentence)",
+ kw:["it was not until","that"]},
 
 {c:"Complex Structures",
  q:"The company pressed ahead with the launch, ___ widespread consumer opposition.",
  o:["despite of","notwithstanding","regardless","in spite"], a:1,
- e:"'Notwithstanding' is a preposition that takes no 'of' — grammatically complete on its own. 'Despite of' is ungrammatical (despite takes no preposition); 'regardless' needs 'of'; 'in spite' needs 'of'."},
+ e:"'Notwithstanding' is a preposition that takes no 'of' — grammatically complete on its own. 'Despite of' is ungrammatical (despite takes no preposition); 'regardless' needs 'of'; 'in spite' needs 'of'.",
+ ex:["The appeal was dismissed, notwithstanding the compelling new evidence submitted by the defence.","The board approved the proposal, notwithstanding the significant financial risk involved.","The project proceeded, notwithstanding strong objections from two of the five committee members."],
+ tip:"PATTERN: [main clause], notwithstanding [noun phrase] (formal preposition — takes no 'of')",
+ kw:["notwithstanding"]},
 
 // GERUNDS & INFINITIVES
 {c:"Gerunds & Infinitives",
  q:"We regret ___ you that your application has not been successful on this occasion.",
  o:["telling","to tell","having told","told"], a:1,
- e:"'Regret + to + infinitive' delivers disappointing news in the present: 'I regret to tell you = I'm sorry to have to say this now.' 'Regret + gerund' refers to a past action regretted: 'I regret telling him.'"},
+ e:"'Regret + to + infinitive' delivers disappointing news in the present: 'I regret to tell you = I'm sorry to have to say this now.' 'Regret + gerund' refers to a past action regretted: 'I regret telling him.'",
+ ex:["We regret to inform you that your appeal has been unsuccessful at this stage.","I regret to announce that the conference has been postponed due to unforeseen circumstances.","She regretted to report that the committee had rejected the proposal at its last meeting."],
+ tip:"PATTERN: [subject] + regret(s) to + BASE VERB (announcing bad news in the present moment)",
+ kw:["regret to"]},
 
 {c:"Gerunds & Infinitives",
  q:"She stopped ___ the report when she realised she had opened the wrong file.",
  o:["to read","reading","read","having read"], a:1,
- e:"'Stop + gerund' means to cease an activity ('she was reading and stopped'). 'Stop + infinitive' means to pause in order to do something: 'She stopped to read' = she paused for the purpose of reading."},
+ e:"'Stop + gerund' means to cease an activity ('she was reading and stopped'). 'Stop + infinitive' means to pause in order to do something: 'She stopped to read' = she paused for the purpose of reading.",
+ ex:["The chairman stopped taking questions when it became clear that the session was going in circles.","She stopped reviewing the contract when she realised the terms had already been superseded.","He stopped arguing his case once he saw that the panel had already reached a decision."],
+ tip:"PATTERN: [subject] + stopped + VERB-ing (ceased doing the activity)",
+ kw:["stopped"]},
 
 {c:"Gerunds & Infinitives",
  q:"I remember ___ this clause in the original version — it appears to have been removed.",
  o:["to see","seeing","to have seen","being seen"], a:1,
- e:"'Remember + gerund' refers to a memory of a past event ('I remember seeing = I recall having seen it'). 'Remember + infinitive' means to remember to do something as a duty or task."},
+ e:"'Remember + gerund' refers to a memory of a past event ('I remember seeing = I recall having seen it'). 'Remember + infinitive' means to remember to do something as a duty or task.",
+ ex:["I remember signing that document, though I cannot recall the exact date or the precise wording.","She remembered reading this provision in an earlier version of the statute.","He clearly remembered being informed of his rights at the time of the original caution."],
+ tip:"PATTERN: [subject] + remember(s) + VERB-ing (has a memory of having done something past)",
+ kw:["remember"]},
 
 {c:"Gerunds & Infinitives",
  q:"They proposed ___ the project by engaging a specialist consultant from abroad.",
  o:["to save","saving","having saved","save"], a:1,
- e:"'Propose + gerund' means to suggest a course of action. 'Propose + to-infinitive' means to intend to do it oneself: 'I propose to attend' (I intend to). Since this is a collective suggestion, the gerund applies."},
+ e:"'Propose + gerund' means to suggest a course of action. 'Propose + to-infinitive' means to intend to do it oneself: 'I propose to attend' (I intend to). Since this is a collective suggestion, the gerund applies.",
+ ex:["The architect proposed redesigning the building's façade to comply with new planning regulations.","Management proposed outsourcing the logistics division to reduce operational overheads.","The committee proposed establishing a dedicated subgroup to oversee the transition."],
+ tip:"PATTERN: [subject] + proposed + VERB-ing (suggested a course of action for others)",
+ kw:["proposed"]},
 
 // TENSE IN CLAUSES
 {c:"Tense in Clauses",
  q:"As soon as the committee ___ a final decision, the chairman will issue a formal statement.",
  o:["makes","will make","made","has made"], a:3,
- e:"In future time clauses ('as soon as', 'once', 'when', 'before'), the present perfect ('has made') emphasises the completion of the action before the main clause event occurs. Simple present is also possible but less precise."},
+ e:"In future time clauses ('as soon as', 'once', 'when', 'before'), the present perfect ('has made') emphasises the completion of the action before the main clause event occurs. Simple present is also possible but less precise.",
+ ex:["As soon as the jury has reached its verdict, the judge will reconvene the court.","Once the client has reviewed and signed the proposal, we will proceed to the next phase.","As soon as the committee has confirmed the quorum, the chairperson will open the session."],
+ tip:"PATTERN: As soon as/Once + [subject] + HAS + [pp], [subject] + WILL + BASE VERB",
+ kw:["has","will","as soon as","once"]},
 
 {c:"Tense in Clauses",
  q:"He denied ever ___ access to the confidential personnel files.",
  o:["to have","having","to have had","having had"], a:3,
- e:"'Deny + gerund' is the standard structure. The perfect gerund 'having had' is needed because the denial concerns a past state ('having had access'). 'Having' alone ('having access') is weaker and less idiomatic here."},
+ e:"'Deny + gerund' is the standard structure. The perfect gerund 'having had' is needed because the denial concerns a past state ('having had access'). 'Having' alone ('having access') is weaker and less idiomatic here.",
+ ex:["He denied ever having had access to the classified material in question.","She denied having had any knowledge of the arrangement prior to the investigation.","The official denied having had contact with the lobbyist during the tender process."],
+ tip:"PATTERN: [subject] + denied + having had + [noun] (perfect gerund for a denied past state)",
+ kw:["denied","having"]},
 
 {c:"Tense in Clauses",
  q:"The policy requires that employees ___ any potential conflict of interest upon appointment.",
  o:["declare","declares","will declare","have declared"], a:0,
- e:"'Requires that' triggers the mandative subjunctive: the base form 'declare' regardless of subject. 'Declares' (third-person -s) is indicative and incorrect in this formal policy context."},
+ e:"'Requires that' triggers the mandative subjunctive: the base form 'declare' regardless of subject. 'Declares' (third-person -s) is indicative and incorrect in this formal policy context.",
+ ex:["The code of conduct requires that all members declare gifts received above a threshold.","The agreement stipulates that each party disclose any related-party transactions annually.","The charter demands that the treasurer present audited accounts at the annual general meeting."],
+ tip:"PATTERN: [subject] + requires/stipulates/demands + that + [subject] + BASE VERB (no -s)",
+ kw:["requires that","that"]},
 
 // CLARITY & STYLE
 {c:"Clarity & Style",
@@ -458,7 +630,10 @@ const QB = [
     "Having finished the report, the meeting was cancelled.",
     "Walking to the station, she noticed the rain beginning to fall.",
     "To write clearly, practice is the only solution."], a:2,
- e:"Options A, B, and D are dangling modifiers — the implied subject of the participial phrase ('walking', 'having finished', 'to write') does not match the grammatical subject of the main clause. Only C correctly makes 'she' the subject of both clauses."},
+ e:"Options A, B, and D are dangling modifiers — the implied subject of the participial phrase ('walking', 'having finished', 'to write') does not match the grammatical subject of the main clause. Only C correctly makes 'she' the subject of both clauses.",
+ ex:["Having reviewed all the submissions, the panel selected the three strongest proposals.","Returning to the original brief, she identified several key requirements that had been overlooked.","Faced with mounting evidence, the committee had no choice but to commission an independent inquiry."],
+ tip:"RULE: The implied subject of the participial phrase MUST match the grammatical subject of the main clause.",
+ kw:[]},
 
 {c:"Clarity & Style",
  q:"Choose the version where 'almost' is correctly placed.",
@@ -466,7 +641,10 @@ const QB = [
     "He drove almost two hundred miles to see her.",
     "He drove two hundred miles almost to see her.",
     "Almost, he drove two hundred miles to see her."], a:1,
- e:"In B, 'almost' correctly modifies 'two hundred miles' (the distance was nearly 200 miles). In A, 'almost' modifies 'drove' (implying he nearly drove but didn't). In C, 'almost to see her' implies he nearly — but didn't quite — see her."},
+ e:"In B, 'almost' correctly modifies 'two hundred miles' (the distance was nearly 200 miles). In A, 'almost' modifies 'drove' (implying he nearly drove but didn't). In C, 'almost to see her' implies he nearly — but didn't quite — see her.",
+ ex:["She drove almost three hundred kilometres to attend the summit in person.","He completed almost every section of the application before the system crashed.","The project was almost entirely funded by private investment, with minimal public subsidy."],
+ tip:"RULE: Place 'almost' (and other adverbs of degree) immediately before the word or phrase they modify.",
+ kw:["almost"]},
 
 {c:"Clarity & Style",
  q:"Which sentence is clearest and most concise?",
@@ -474,7 +652,10 @@ const QB = [
     "The project was cancelled due to insufficient funding.",
     "The project, on account of there being insufficient funding, was required to be cancelled.",
     "It being the case that funding was insufficient, cancellation of the project was necessitated."], a:1,
- e:"Option B is active, concise, and direct. 'Due to the fact that' (A) is a wordy substitute for 'because' or 'due to'. Options C and D use cumbersome constructions that bury the key information."},
+ e:"Option B is active, concise, and direct. 'Due to the fact that' (A) is a wordy substitute for 'because' or 'due to'. Options C and D use cumbersome constructions that bury the key information.",
+ ex:["The deal collapsed due to irreconcilable differences over valuation.","The report was rejected because it lacked supporting evidence.","The merger was approved subject to regulatory clearance in three jurisdictions."],
+ tip:"RULE: State subject + verb + key information directly. Cut 'due to the fact that', 'it being the case that', etc.",
+ kw:[]},
 
 {c:"Clarity & Style",
  q:"Which sentence contains an ambiguous pronoun reference?",
@@ -482,7 +663,10 @@ const QB = [
     "After the director spoke with the producer, she revised the script entirely.",
     "The attorney filed the motion before the deadline, ensuring its acceptance.",
     "The panel reviewed the submission and found it compelling."], a:1,
- e:"In B, 'she' is ambiguous — it could be the director or the producer. Fix: 'After speaking with the producer, the director revised the script.' In A, 'which' refers clearly to the merger; in C, 'its' refers clearly to the motion."},
+ e:"In B, 'she' is ambiguous — it could be the director or the producer. Fix: 'After speaking with the producer, the director revised the script.' In A, 'which' refers clearly to the merger; in C, 'its' refers clearly to the motion.",
+ ex:["After the auditor reviewed the accounts, the accountant revised the projections.","The director informed the producer that the script needed substantial revision.","Once the legal team advised the client, the client decided to accept the settlement."],
+ tip:"RULE: Replace ambiguous pronouns with the specific noun they refer to.",
+ kw:[]},
 
 {c:"Clarity & Style",
  q:"Which sentence demonstrates correct parallel structure?",
@@ -490,7 +674,10 @@ const QB = [
     "Her duties include managing the budget, to oversee logistics, and training staff.",
     "The proposal was rejected for its length, its vagueness, and its lack of evidence.",
     "He was praised for efficiency, his ability to meet deadlines, and being calm."], a:2,
- e:"Option C uses consistent noun phrases throughout: 'its length, its vagueness, its lack of evidence'. A mixes adjectives with a clause. B mixes gerunds and an infinitive. D mixes bare nouns, a noun phrase, and a gerund phrase."},
+ e:"Option C uses consistent noun phrases throughout: 'its length, its vagueness, its lack of evidence'. A mixes adjectives with a clause. B mixes gerunds and an infinitive. D mixes bare nouns, a noun phrase, and a gerund phrase.",
+ ex:["The role requires strong analytical skills, sound commercial judgement, and effective communication.","She is responsible for managing accounts, overseeing compliance, and reporting to the board.","The report was clear, well-structured, and thoroughly evidenced."],
+ tip:"RULE: All items in a list must use the same grammatical form (all nouns, all gerunds, all adjectives, etc.).",
+ kw:[]},
 
 {c:"Clarity & Style",
  q:"Which sentence is free from redundancy?",
@@ -498,7 +685,10 @@ const QB = [
     "Please revert back to the original version of the document.",
     "The investigation confirmed what had always been a known fact.",
     "The merger was finalised after six months of extensive negotiation."], a:3,
- e:"A: 'collaborate together' is redundant (collaborate means work together). B: 'revert back' is redundant (revert means return). C: 'known fact' is redundant (a fact is by definition known). D contains no redundancy."},
+ e:"A: 'collaborate together' is redundant (collaborate means work together). B: 'revert back' is redundant (revert means return). C: 'known fact' is redundant (a fact is by definition known). D contains no redundancy.",
+ ex:["The project was completed ahead of schedule.","Please refer to the original document for clarification.","The committee reached consensus after lengthy deliberation."],
+ tip:"RULE: Remove any word whose meaning is already implied by another word in the same sentence.",
+ kw:[]},
 
 {c:"Clarity & Style",
  q:"Which sentence most effectively avoids inappropriate passive voice?",
@@ -506,7 +696,10 @@ const QB = [
     "The committee made mistakes and mishandled the situation.",
     "It can be said that the handling of the situation was less than ideal.",
     "The mishandling of the situation was engaged in by senior staff."], a:1,
- e:"B is direct, active, and assigns clear responsibility. A uses the notorious 'mistakes were made' dodge — passive voice that evades accountability. C is wordy and evasive. D is grammatically awkward passive."},
+ e:"B is direct, active, and assigns clear responsibility. A uses the notorious 'mistakes were made' dodge — passive voice that evades accountability. C is wordy and evasive. D is grammatically awkward passive.",
+ ex:["The committee rejected the proposal without providing any written justification.","Senior management approved the restructuring plan in January.","The audit team identified twelve discrepancies in the financial records."],
+ tip:"RULE: Active voice assigns clear responsibility: [AGENT] + [VERB] + [OBJECT]. Avoid 'mistakes were made'.",
+ kw:[]},
 
 {c:"Clarity & Style",
  q:"Which sentence contains a formal register error?",
@@ -514,55 +707,85 @@ const QB = [
     "The findings, whilst illuminating, raise questions warranting further investigation.",
     "We're gonna need to look into this way more carefully before any decision.",
     "The evidence adduced at trial was insufficient to sustain the conviction."], a:2,
- e:"C uses informal, colloquial language ('gonna', 'way more') that is inappropriate in any formal professional context. The other options use elevated, precise register consistent with formal written English."},
+ e:"C uses informal, colloquial language ('gonna', 'way more') that is inappropriate in any formal professional context. The other options use elevated, precise register consistent with formal written English.",
+ ex:["We would be grateful if you could provide further clarification at your earliest convenience.","The committee has resolved to defer this matter pending further consultation.","I should be obliged if you would kindly direct any further enquiries to my office."],
+ tip:"RULE: In formal writing: no contractions, no colloquialisms ('gonna', 'way more'), no intensifiers like 'totally'.",
+ kw:[]},
 
 // ARTICLES & DETERMINERS
 {c:"Articles & Determiners",
  q:"She has ___ extraordinary command of both the technical and rhetorical dimensions of the argument.",
  o:["a","an","the","—"], a:1,
- e:"'An extraordinary command' — 'an' is used before words beginning with a vowel sound. 'Extraordinary' begins with a vowel sound /ɪk/, so 'an' is correct. 'A extraordinary' is wrong."},
+ e:"'An extraordinary command' — 'an' is used before words beginning with a vowel sound. 'Extraordinary' begins with a vowel sound /ɪk/, so 'an' is correct. 'A extraordinary' is wrong.",
+ ex:["She demonstrated an exceptional grasp of the underlying regulatory framework.","He has an unparalleled ability to synthesise complex information under pressure.","The committee showed an admirable willingness to engage with dissenting voices."],
+ tip:"RULE: Use 'an' before any word beginning with a VOWEL SOUND (not just vowel letter): an extraordinary, an honest, an hour.",
+ kw:["an"]},
 
 {c:"Articles & Determiners",
  q:"___ evidence presented at the inquest was largely circumstantial and inconclusive.",
  o:["The","A","An","—"], a:0,
- e:"'The evidence' uses the definite article because the post-modifier ('presented at the inquest') makes it specific — it refers to particular, identifiable evidence. 'Evidence' is uncountable, so 'A/An' cannot be used."},
+ e:"'The evidence' uses the definite article because the post-modifier ('presented at the inquest') makes it specific — it refers to particular, identifiable evidence. 'Evidence' is uncountable, so 'A/An' cannot be used.",
+ ex:["The testimony given by the third witness proved decisive in the outcome of the trial.","The data collected over the past decade points to a clear and consistent pattern.","The advice received from the legal team was unambiguous on this particular point."],
+ tip:"RULE: Use 'the' when the noun is made specific by a following relative clause or prepositional phrase.",
+ kw:["the"]},
 
 // PREPOSITIONS
 {c:"Prepositions",
  q:"She remained committed ___ the project despite mounting criticism from senior colleagues.",
  o:["for","in","to","at"], a:2,
- e:"'Committed to' is the fixed collocation. You are committed TO a goal, cause, or project — not 'for' or 'in'."},
+ e:"'Committed to' is the fixed collocation. You are committed TO a goal, cause, or project — not 'for' or 'in'.",
+ ex:["The company remains committed to upholding the highest standards of ethical conduct.","She has been committed to this cause for the better part of two decades.","Both parties confirmed their commitment to reaching a mutually acceptable resolution."],
+ tip:"COLLOCATION: committed TO (a goal, cause, or project) — never 'committed for'",
+ kw:["committed to","to"]},
 
 {c:"Prepositions",
  q:"The discrepancy between the projections and the actual figures is ___ little consequence.",
  o:["of","for","with","in"], a:0,
- e:"'Of little/great consequence' is the standard fixed expression. 'Of' is used with abstract nouns to indicate quality or degree: 'of importance', 'of value', 'of interest'."},
+ e:"'Of little/great consequence' is the standard fixed expression. 'Of' is used with abstract nouns to indicate quality or degree: 'of importance', 'of value', 'of interest'.",
+ ex:["The minor discrepancies in the annexes are of little significance to the main argument.","Whether the meeting takes place on Monday or Wednesday is of no consequence to the outcome.","The delay, whilst unfortunate, is of minimal impact given the overall project timeline."],
+ tip:"COLLOCATION: of [adjective] consequence/importance/significance (quality expressed with 'of')",
+ kw:["of"]},
 
 // EXTRA CHALLENGING
 {c:"Complex Structures",
  q:"___ difficult the negotiations proved, the final agreement was widely praised as a landmark.",
  o:["However","Although","Despite","Nevertheless"], a:0,
- e:"'However + adjective + subject + verb' is the correct concessive structure: 'However difficult the negotiations proved…'. 'Although' needs a full clause without the fronted adjective; 'Despite' needs a gerund or noun phrase."},
+ e:"'However + adjective + subject + verb' is the correct concessive structure: 'However difficult the negotiations proved…'. 'Although' needs a full clause without the fronted adjective; 'Despite' needs a gerund or noun phrase.",
+ ex:["However complex the legislation proved, the draftsmen expressed it with admirable clarity.","However reluctant the parties were, they ultimately agreed to submit the dispute to arbitration.","However contentious the issue might appear, the underlying legal principles are well established."],
+ tip:"PATTERN: However + ADJECTIVE + [subject] + [verb], [main clause] (fronted adjective)",
+ kw:["however"]},
 
 {c:"Conditionals",
  q:"Had I known about the allegations sooner, I ___ the matter to the appropriate authority.",
  o:["would refer","referred","would have referred","had referred"], a:2,
- e:"Type-3 conditional (inverted form): 'Had I known' = 'If I had known'. The main clause requires 'would have + past participle' to match the hypothetical past condition."},
+ e:"Type-3 conditional (inverted form): 'Had I known' = 'If I had known'. The main clause requires 'would have + past participle' to match the hypothetical past condition.",
+ ex:["Had I been aware of the conflict, I would never have agreed to chair the committee.","Had they consulted us earlier, we would have been able to offer far more effective assistance.","Had the system flagged the anomaly sooner, the team would have intervened before any damage occurred."],
+ tip:"PATTERN: Had + [subject] + [pp], [subject] + WOULD HAVE + [pp] (inverted type-3 conditional)",
+ kw:["had","would have"]},
 
 {c:"Perfect Tenses",
  q:"The archaeologist announced that the artefact ___ the collection by at least two centuries.",
  o:["predates","is predating","predated","had predated"], a:3,
- e:"'Had predated' (past perfect) correctly situates the artefact's age earlier than an already-past reference point established in the announcement. The past perfect captures the relative sequencing."},
+ e:"'Had predated' (past perfect) correctly situates the artefact's age earlier than an already-past reference point established in the announcement. The past perfect captures the relative sequencing.",
+ ex:["The inscription had predated the building's construction by several centuries, scholars found.","It emerged that the treaty had predated the formation of the state it governed.","Analysis revealed that the painting had predated the attributed artist's birth by at least a decade."],
+ tip:"PATTERN: reported that [subject] + HAD + [pp] (past perfect in embedded past narrative)",
+ kw:["had"]},
 
 {c:"Modal Verbs",
  q:"This disaster ___ prevented had the standard safety protocols been followed from the outset.",
  o:["could have been","should be","would be","may be"], a:0,
- e:"'Could have been prevented' uses the past modal passive to describe an unrealised past possibility. 'Would have been' is also possible (certainty), but 'could have been' specifically highlights the feasibility of prevention."},
+ e:"'Could have been prevented' uses the past modal passive to describe an unrealised past possibility. 'Would have been' is also possible (certainty), but 'could have been' specifically highlights the feasibility of prevention.",
+ ex:["The accident could have been avoided had the safety checklist been properly completed.","The error could have been detected earlier had the peer review process been followed rigorously.","Many of the complications could have been prevented had the correct procedures been observed."],
+ tip:"PATTERN: [subject] + COULD HAVE BEEN + [pp] (past modal passive for unrealised possibility)",
+ kw:["could have been"]},
 
 {c:"Subjunctive",
  q:"Lest the details ___ to the press before the official announcement, all staff were asked to sign a confidentiality agreement.",
  o:["leaked","leak","leaking","would leak"], a:1,
- e:"'Lest' is a formal subordinating conjunction meaning 'for fear that', and it triggers the subjunctive: the base form 'leak'. 'Lest' + base verb is a formal, literary structure largely preserved in legal and official writing."},
+ e:"'Lest' is a formal subordinating conjunction meaning 'for fear that', and it triggers the subjunctive: the base form 'leak'. 'Lest' + base verb is a formal, literary structure largely preserved in legal and official writing.",
+ ex:["Lest the proceedings be misrepresented, all parties agreed to restrict media access.","She kept the discussions confidential, lest word reach the opposing legal team.","The documents were sealed, lest their premature disclosure prejudice the outcome."],
+ tip:"PATTERN: lest + [subject] + BASE VERB (subjunctive — no auxiliary, no -s; formal/literary)",
+ kw:["lest"]},
 
 ]; // end QB
 
@@ -724,6 +947,19 @@ function showFB(ok,exp,finalWrong){
   const title=document.getElementById('fb-title');
   document.getElementById('fb-exp').textContent=exp;
 
+  // populate examples
+  const q=S.qs[S.idx];
+  const exList=document.getElementById('fb-ex-list');
+  exList.innerHTML='';
+  (q.ex||[]).forEach(s=>{const li=document.createElement('li');li.className='ex-item';li.textContent=s;exList.appendChild(li);});
+  // populate tip
+  document.getElementById('fb-tip').textContent=q.tip||'';
+  // reset practice area
+  document.getElementById('practice-area').value='';
+  const cr=document.getElementById('check-result');
+  cr.className='check-result hidden';
+  cr.textContent='';
+
   icon.className='fb-icon '+(ok?'ok':'no');
   icon.textContent=ok?'✓':'✗';
   title.className='fb-title '+(ok?'ok':'no');
@@ -741,6 +977,40 @@ function showFB(ok,exp,finalWrong){
 
   panel.classList.remove('hidden');
   setTimeout(()=>panel.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+}
+
+function checkSentence(){
+  const q=S.qs[S.idx];
+  const text=document.getElementById('practice-area').value.trim();
+  const cr=document.getElementById('check-result');
+  cr.className='check-result';
+
+  if(text.split(/\s+/).length<5){
+    cr.className+=' warn';
+    cr.textContent='⚠ Please write a complete sentence (at least 5 words).';
+    return;
+  }
+
+  const lower=text.toLowerCase();
+  const kw=q.kw||[];
+
+  if(kw.length===0){
+    cr.className+=' neutral';
+    cr.textContent='📝 Compare your sentence with the examples above and check it against the pattern shown.';
+    return;
+  }
+
+  const found=kw.filter(k=>lower.includes(k.toLowerCase()));
+  const ratio=found.length/kw.length;
+
+  if(ratio>=0.6){
+    cr.className+=' good';
+    cr.textContent='✓ Looks good! Key grammatical elements detected. Double-check the full pattern: '+(q.tip||'');
+  } else {
+    const missing=kw.filter(k=>!lower.includes(k.toLowerCase()));
+    cr.className+=' warn';
+    cr.textContent='✎ Review needed — try including: '+missing.join(', ')+'. Pattern: '+(q.tip||'');
+  }
 }
 
 function nextQ(){
